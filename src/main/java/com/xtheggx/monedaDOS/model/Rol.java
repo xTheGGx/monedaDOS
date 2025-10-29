@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.model;
+package com.xtheggx.monedados.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,9 +14,10 @@ public class Rol {
     @Column(name = "id_rol")
     private Integer idRol;
 
+    // Nombre del rol (e.g., "ADMIN", "USER")
     @Column(nullable = false, unique = true, length = 50)
     private String nombre;
-
+    // Descripción del rol
     @Column(length = 255)
     private String descripcion;
 }

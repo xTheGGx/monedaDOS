@@ -1,7 +1,7 @@
-package com.xtheggx.monedaDOS.service;
+package com.xtheggx.monedados.service;
 
 
-import com.xtheggx.monedaDOS.repository.UsuarioRepository;
+import com.xtheggx.monedados.repository.UsuarioRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;

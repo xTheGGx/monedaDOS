@@ -1,10 +1,10 @@
-package com.xtheggx.monedaDOS.dto;
+package com.xtheggx.monedados.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.xtheggx.monedaDOS.model.CuentaTipo;
+import com.xtheggx.monedados.model.CuentaTipo;
 
 @Data
 @NoArgsConstructor

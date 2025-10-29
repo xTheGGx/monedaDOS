@@ -1,7 +1,6 @@
-package com.xtheggx.monedaDOS.config;
+package com.xtheggx.monedados.config;
 
-
-import com.xtheggx.monedaDOS.service.UserDetailsServiceImpl;
+import com.xtheggx.monedados.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +18,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.security.SecureRandom;
 
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -31,23 +29,32 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/css/**", "/favicon.ico", "/**", "/index").permitAll()
-                        .requestMatchers("/user").hasAnyRole("USER")
-                        .requestMatchers("/admin").hasAnyRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/css/**",
+                                "/js/**",
+                                "/favicon.ico",
+                                "/",
+                                "/index",
+                                "/login",
+                                "/register",
+                                "/process_register")
+                        .permitAll()
+                        .requestMatchers("/user").hasRole("USER")
+                        .requestMatchers("/admin").hasRole("ADMIN")
+                        .anyRequest().authenticated())
                 .formLogin(login -> login
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/")
-                        .successForwardUrl("/login_success_handler")
-                        .permitAll())
+                        .loginPage("/login") // Tu página de @GetMapping("/login")
+                        .loginProcessingUrl("/login") // URL del POST (Spring la maneja)
+                        .defaultSuccessUrl("/home", true) // A dónde ir si SÍ loguea
+                        .failureUrl("/login?error=true") // A dónde ir si FALLA
+                        .permitAll() // La pág de login es pública
+                )
                 .logout(logout -> logout
-                        .logoutUrl("/doLogout")
-                        .logoutSuccessUrl("/")
-                        .deleteCookies("JSESSIONID") //NEW Cookies to clear
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout=true")
+                        .deleteCookies("JSESSIONID") // NEW Cookies to clear
                         .invalidateHttpSession(true))
                 .csrf(Customizer.withDefaults())
-                //.cors(Customizer.withDefaults())
+        // .cors(Customizer.withDefaults())
         ;
         return http.build();
     }
@@ -58,7 +65,7 @@ public class SecurityConfig {
     }
 
     /*
-    * Provider sera una base de datos
+     * Provider sera una base de datos
      */
     @Bean
     public AuthenticationProvider authenticationProvider() {

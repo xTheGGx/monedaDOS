@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.model;
+package com.xtheggx.monedados.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;

@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.dto;
+package com.xtheggx.monedados.dto;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

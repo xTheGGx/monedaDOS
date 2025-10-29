@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.model;
+package com.xtheggx.monedados.model;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

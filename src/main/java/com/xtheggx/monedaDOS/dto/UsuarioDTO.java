@@ -1,5 +1,7 @@
 // src/main/java/mx/dgtic/sfp/dto/UsuarioSesion.java
-package com.xtheggx.monedaDOS.dto;
+package com.xtheggx.monedados.dto;
+
+import com.xtheggx.monedados.model.Rol;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,5 +12,5 @@ public class UsuarioDTO {
     private Integer id;
     private String nombreCompleto;
     private String email;
-    private String rol;
+    private Rol rol;
 }

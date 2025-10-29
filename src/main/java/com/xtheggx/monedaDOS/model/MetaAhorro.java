@@ -1,9 +1,10 @@
-package com.xtheggx.monedaDOS.model;
+package com.xtheggx.monedados.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.xtheggx.monedados.model.Cuenta;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

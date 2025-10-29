@@ -1,7 +1,7 @@
-package com.xtheggx.monedaDOS.service;
+package com.xtheggx.monedados.service;
 
-import com.xtheggx.monedaDOS.dto.CuentaDTO;
-import com.xtheggx.monedaDOS.model.Cuenta;
+import com.xtheggx.monedados.dto.CuentaDTO;
+import com.xtheggx.monedados.model.Cuenta;
 
 import java.util.List;
 import java.util.Map;

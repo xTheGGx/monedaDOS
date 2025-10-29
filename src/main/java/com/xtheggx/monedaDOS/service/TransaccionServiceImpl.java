@@ -1,15 +1,15 @@
-package com.xtheggx.monedaDOS.service;
+package com.xtheggx.monedados.service;
 
-import com.xtheggx.monedaDOS.dto.TransaccionDTO;
-import com.xtheggx.monedaDOS.exception.ResourceNotFoundException;
-import com.xtheggx.monedaDOS.model.Categoria;
-import com.xtheggx.monedaDOS.model.CategoriaTipo;
-import com.xtheggx.monedaDOS.model.Clasificacion;
-import com.xtheggx.monedaDOS.model.Transaccion;
-import com.xtheggx.monedaDOS.repository.CategoriaRepository;
-import com.xtheggx.monedaDOS.repository.CuentaRepository;
-import com.xtheggx.monedaDOS.repository.TransaccionRepository;
-import com.xtheggx.monedaDOS.repository.UsuarioRepository;
+import com.xtheggx.monedados.dto.TransaccionDTO;
+import com.xtheggx.monedados.exception.ResourceNotFoundException;
+import com.xtheggx.monedados.model.Categoria;
+import com.xtheggx.monedados.model.CategoriaTipo;
+import com.xtheggx.monedados.model.Clasificacion;
+import com.xtheggx.monedados.model.Transaccion;
+import com.xtheggx.monedados.repository.CategoriaRepository;
+import com.xtheggx.monedados.repository.CuentaRepository;
+import com.xtheggx.monedados.repository.TransaccionRepository;
+import com.xtheggx.monedados.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

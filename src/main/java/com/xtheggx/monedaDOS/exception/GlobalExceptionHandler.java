@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.exception;
+package com.xtheggx.monedados.exception;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;

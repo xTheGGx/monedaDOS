@@ -1,11 +1,11 @@
-package com.xtheggx.monedaDOS.service;
+package com.xtheggx.monedados.service;
 
-import com.xtheggx.monedaDOS.dto.CuentaDTO;
-import com.xtheggx.monedaDOS.exception.ResourceNotFoundException;
-import com.xtheggx.monedaDOS.model.Cuenta;
-import com.xtheggx.monedaDOS.model.CuentaTipo;
-import com.xtheggx.monedaDOS.repository.CuentaRepository;
-import com.xtheggx.monedaDOS.repository.UsuarioRepository;
+import com.xtheggx.monedados.dto.CuentaDTO;
+import com.xtheggx.monedados.exception.ResourceNotFoundException;
+import com.xtheggx.monedados.model.Cuenta;
+import com.xtheggx.monedados.model.CuentaTipo;
+import com.xtheggx.monedados.repository.CuentaRepository;
+import com.xtheggx.monedados.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
-package com.xtheggx.monedaDOS.repository;
+package com.xtheggx.monedados.repository;
 
-import com.xtheggx.monedaDOS.model.CategoriaTipo;
-import com.xtheggx.monedaDOS.model.Clasificacion;
-import com.xtheggx.monedaDOS.model.Transaccion;
+import com.xtheggx.monedados.model.CategoriaTipo;
+import com.xtheggx.monedados.model.Clasificacion;
+import com.xtheggx.monedados.model.Transaccion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

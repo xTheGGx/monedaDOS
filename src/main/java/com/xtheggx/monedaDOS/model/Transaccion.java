@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.model;
+package com.xtheggx.monedados.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "TRANSACCION")
-@Data @NoArgsConstructor @AllArgsConstructor
+@Data 
+@NoArgsConstructor 
+@AllArgsConstructor
 public class Transaccion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

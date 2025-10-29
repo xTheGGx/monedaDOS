@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.model;
+package com.xtheggx.monedados.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

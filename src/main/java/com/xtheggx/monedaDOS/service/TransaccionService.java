@@ -1,9 +1,9 @@
-package com.xtheggx.monedaDOS.service;
+package com.xtheggx.monedados.service;
 
-import com.xtheggx.monedaDOS.dto.TransaccionDTO;
-import com.xtheggx.monedaDOS.model.CategoriaTipo;
-import com.xtheggx.monedaDOS.model.Clasificacion;
-import com.xtheggx.monedaDOS.model.Transaccion;
+import com.xtheggx.monedados.dto.TransaccionDTO;
+import com.xtheggx.monedados.model.CategoriaTipo;
+import com.xtheggx.monedados.model.Clasificacion;
+import com.xtheggx.monedados.model.Transaccion;
 
 import java.util.List;
 

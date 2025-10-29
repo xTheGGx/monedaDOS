@@ -1,7 +1,7 @@
-package com.xtheggx.monedaDOS.repository;
+package com.xtheggx.monedados.repository;
 
-import com.xtheggx.monedaDOS.model.Categoria;
-import com.xtheggx.monedaDOS.model.CategoriaTipo;
+import com.xtheggx.monedados.model.Categoria;
+import com.xtheggx.monedados.model.CategoriaTipo;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
