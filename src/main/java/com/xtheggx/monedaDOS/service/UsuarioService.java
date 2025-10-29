@@ -1,5 +1,6 @@
 package com.xtheggx.monedados.service;
 
+import com.xtheggx.monedados.dto.RegistroDTO;
 import com.xtheggx.monedados.model.Usuario;
 import java.util.List;
 
@@ -11,5 +12,11 @@ public interface UsuarioService {
     Usuario updateUsuario(Usuario usuario);
     void deleteUsuario(Long id);
     List<Usuario> getAllUsuarios();
+
+    /**
+     * Proceso de negocio para registrar un nuevo usuario.
+     * Se encarga de la conversión de DTO, encriptación y asignación de rol.
+     */
+    void registrarUsuario(RegistroDTO registroDTO);
 
 }
