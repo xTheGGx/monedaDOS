@@ -16,7 +16,7 @@ public class TransaccionDTO {
     private Integer categoriaId;
 
     @NotNull(message = "El id del usuario es obligatorio")
-    private Integer usuarioId;
+    private Long usuarioId;
 
     @NotNull(message = "El monto de la transacción es obligatorio")
     @DecimalMin(value = "0.01", message = "El monto no puede ser cero")

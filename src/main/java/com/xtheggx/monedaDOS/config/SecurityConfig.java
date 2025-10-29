@@ -47,7 +47,8 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID") //NEW Cookies to clear
                         .invalidateHttpSession(true))
                 .csrf(Customizer.withDefaults())
-                .cors(Customizer.withDefaults());
+                //.cors(Customizer.withDefaults())
+        ;
         return http.build();
     }
 

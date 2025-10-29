@@ -175,7 +175,7 @@ public class TransaccionServiceImpl implements  TransaccionService{
                     break;
                 case "usuarioId":
                     if (valor instanceof Number num) {
-                        int nuevoUsuarioId = num.intValue();
+                        Long nuevoUsuarioId = num.longValue();
                         if (!tx.getUsuario().getIdUsuario().equals(nuevoUsuarioId)) {
                             var nuevoUsuario = usuarioRepo.findById(nuevoUsuarioId)
                                     .orElseThrow(() -> new ResourceNotFoundException(
