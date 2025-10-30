@@ -11,7 +11,7 @@
 	<groupId>com.xtheggx.monedaDOS</groupId>
 	<artifactId>monedaDOS</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
+	<name>monedados</name>
 	<description>Track income and expenses effortlessly. Gain total control of your finances and take steps toward a better financial future.</description>
 	<url/>
 	<licenses>

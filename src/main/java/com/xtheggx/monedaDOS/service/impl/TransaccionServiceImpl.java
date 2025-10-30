@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.service;
+package com.xtheggx.monedaDOS.service.impl;
 
 import com.xtheggx.monedaDOS.dto.TransaccionDTO;
 import com.xtheggx.monedaDOS.exception.ResourceNotFoundException;
@@ -10,6 +10,7 @@ import com.xtheggx.monedaDOS.repository.CategoriaRepository;
 import com.xtheggx.monedaDOS.repository.CuentaRepository;
 import com.xtheggx.monedaDOS.repository.TransaccionRepository;
 import com.xtheggx.monedaDOS.repository.UsuarioRepository;
+import com.xtheggx.monedaDOS.service.TransaccionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ import java.util.Map;
 
 @Service
 @Transactional
-public class TransaccionServiceImpl implements  TransaccionService{
+public class TransaccionServiceImpl implements TransaccionService {
     @Autowired
     private TransaccionRepository transaccionRepo;
     @Autowired

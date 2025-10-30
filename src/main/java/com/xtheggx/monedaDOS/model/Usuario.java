@@ -40,7 +40,7 @@ public class Usuario {
     private LocalDateTime fechaRegistro;
 
     // Relación muchos a uno: muchos usuarios tienen muchos roles
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol", nullable = false)
     private Rol rol;
 

@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.service;
+package com.xtheggx.monedaDOS.service.impl;
 
 import com.xtheggx.monedaDOS.dto.CuentaDTO;
 import com.xtheggx.monedaDOS.exception.ResourceNotFoundException;
@@ -6,6 +6,7 @@ import com.xtheggx.monedaDOS.model.Cuenta;
 import com.xtheggx.monedaDOS.model.CuentaTipo;
 import com.xtheggx.monedaDOS.repository.CuentaRepository;
 import com.xtheggx.monedaDOS.repository.UsuarioRepository;
+import com.xtheggx.monedaDOS.service.CuentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.Map;
 
 @Service
 @Transactional
-public class CuentaServiceImpl implements CuentaService{
+public class CuentaServiceImpl implements CuentaService {
     @Autowired
     private CuentaRepository cuentaRepository;
     @Autowired

@@ -1,5 +1,6 @@
 package com.xtheggx.monedaDOS.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -101,25 +105,23 @@ public class GlobalExceptionHandler {
 
     /** Maneja cualquier otra excepción no controlada (500) */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> manejarExcepcionGenerica(Exception ex) {
-        ErrorResponse error = new ErrorResponse(
-                Instant.now().toString(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal Server Error",
-                "Ocurrió un error inesperado en el servidor",
-                null
-        );
-        // (Opcional: registrar la excepción real en logs)
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    public ResponseEntity<ApiError> manejarExcepcionGenerica(Exception ex, HttpServletRequest req) {
+        ApiError body = new ApiError(Instant.now().toString(), req.getRequestURI(), ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
+    }
+
+    public record ApiError(String timestamp, String path, String message) {
     }
 
     // Clase interna o separada para el cuerpo de error unificado
     static class ErrorResponse {
-        private String timestamp;
-        private int status;
-        private String error;
-        private String message;
-        private Map<String, String> fields;
+        private final String timestamp;
+        private final int status;
+        private final String error;
+        private final String message;
+        private final Map<String, String> fields;
 
         public ErrorResponse(String timestamp, int status, String error, String message, Map<String, String> fields) {
             this.timestamp = timestamp;

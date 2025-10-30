@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Navbar -->
+<th:block th:fragment="navbar">
+    <header class="site-header">
+        <div class="container header-content">
+            <div class="brand" aria-label="monedaDOS">
+                <span class="logo" aria-hidden="true">💰</span>
+                <a class="brand-text" href="/home">moneda<span class="dos">DOS</span></a>
+            </div>
+            <nav class="main-nav" aria-label="Navegación principal">
+                <ul>
+                    <li><a href="/home">Dashboard</a></li>
+                    <li><a href="#">Ingresos</a></li>
+                    <li><a href="#">Gastos</a></li>
+                    <li><a href="#">Reportes</a></li>
+                    <li><a href="#">Mi Cuenta</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+</th:block>
+
+<!-- Footer -->
+<th:block th:fragment="footer">
+    <footer class="site-footer">
+        <div class="container footer-content">
+            <p>© 2025 monedaDOS. Todos los derechos reservados.</p>
+            <nav aria-label="Enlaces legales">
+                <a href="#">Términos de Servicio</a>
+                <span class="sep" aria-hidden="true">·</span>
+                <a href="#">Política de Privacidad</a>
+            </nav>
+        </div>
+    </footer>
+</th:block>
+</body>
+</html>
