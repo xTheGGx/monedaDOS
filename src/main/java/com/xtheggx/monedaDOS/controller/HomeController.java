@@ -15,7 +15,7 @@ public class HomeController {
 
     @GetMapping("/home")
     public String home() {
-        return "home/index"; // templates/home/index.html (tu dashboard)
+        return "home/index"; // templates/home/index.html
     }
 
     @GetMapping("/panel")
@@ -28,10 +28,6 @@ public class HomeController {
         return "home/transacciones";
     }
 
-    @GetMapping("/cuentas")
-    public String cuentas() {
-        return "home/cuentas";
-    }
 
     @GetMapping("/reportes")
     public String registrar() {

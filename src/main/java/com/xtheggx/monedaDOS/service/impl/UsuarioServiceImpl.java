@@ -56,6 +56,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     // --- MÉTODOS CRUD EXISTENTES ---
 
     @Override
+    public Long getIdByEmail(String email) {
+
+        return usuarioRepository.getUsuarioIdUsuarioByEmail(email);
+    }
+
+    @Override
     public Usuario createUsuario(Usuario usuario) {
         return usuarioRepository.save(usuario);
     }

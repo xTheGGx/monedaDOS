@@ -6,7 +6,7 @@ import com.xtheggx.monedaDOS.model.Usuario;
 import java.util.List;
 
 public interface UsuarioService {
-
+    Long getIdByEmail(String email);
     // CRUD operations for Usuario entity
     Usuario createUsuario(Usuario usuario);
 

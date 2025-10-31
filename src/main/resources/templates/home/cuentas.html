@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es" class="light">
 <head th:replace="~{fragments/layout :: headFrag('Cuentas')}"></head>
+<th:block th:fragment="pageCss">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</th:block>
 <body>
 <div class="page-wrapper">
     <div th:replace="~{fragments/layout :: navbar('cuentas')}"></div>
@@ -10,68 +13,46 @@
                 <h1>Gestión de Cuentas</h1>
                 <p class="subtitle">Aquí están todas tus cuentas, ¡bien organizadas!</p>
             </div>
+            <div class="totals">
+                <span class="kpi-label">Saldo total</span>
+                <strong th:text="${#numbers.formatDecimal(saldoTotal,1,'COMMA',2,'POINT')}"></strong>
+            </div>
         </div>
 
         <div class="accounts-grid">
-            <div class="card account-card">
-                <div class="card-preview debit">
-                    <div class="card-preview-header">
-                        <span class="card-chip"></span>
-                        <span class="card-logo">Banco Ohana</span>
-                    </div>
-                    <div class="card-preview-footer">
-                        <span class="card-number">**** **** **** 1234</span>
-                        <span class="card-holder">LILO PELEKAI</span>
-                    </div>
-                </div>
+            <div class="card account-card" th:each="c : ${cuentas}">
                 <div class="account-card-header">
-                    <h3>Cuenta de Ahorros</h3>
-                    <span class="badge-faint badge-faint-green">Débito</span>
+                    <h3 th:text="${c.nombre}">Nombre Cuenta</h3>
+                    <span class="badge-faint"
+                          th:classappend="${c.tipo.name()=='CREDITO'} ? ' badge-faint-red' : ' badge-faint-green'"
+                          th:text="${c.tipo}">DEBITO</span>
                 </div>
-                <p class="account-bank">Banco Ohana – **** 1234</p>
-                <p class="account-balance">$8,250.75</p>
+
+                <p class="account-bank" th:text="${c.moneda}">MXN</p>
+
+                <p class="account-balance"
+                   th:classappend="${c.saldo < 0} ? ' text-expense' : ''"
+                   th:text="${#numbers.formatDecimal(c.saldo,1,'COMMA',2,'POINT')}">
+                    $0.00
+                </p>
+
+                <div class="account-credit-details" th:if="${c.tipo.name()=='CREDITO'}">
+                    <small>
+                        Corte: <span th:text="${c.diaCorte != null ? c.diaCorte : '-'}">-</span> ·
+                        Pago: <span th:text="${c.diaPago  != null ? c.diaPago  : '-'}">-</span>
+                        <span th:if="${c.limiteCredito != null}">
+          · Límite: <span th:text="${#numbers.formatDecimal(c.limiteCredito,1,'COMMA',2,'POINT')}"></span>
+        </span>
+                    </small>
+                </div>
+
                 <div class="account-card-footer">
-                    <button class="button-link">Ver Detalles</button>
-                    <button class="button-primary-small">Editar</button>
+                    <a class="button-link" th:href="@{|/transacciones?cuenta=${c.idCuenta}|}">Ver movimientos</a>
+
+                    <button class="button-primary-small" disabled>Editar</button>
                 </div>
             </div>
 
-            <div class="card account-card">
-                <div class="card-preview credit">
-                    <div class="card-preview-header">
-                        <span class="card-chip"></span>
-                        <span class="card-logo">Lilo Bank</span>
-                    </div>
-                    <div class="card-preview-footer">
-                        <span class="card-number">**** **** **** 5678</span>
-                        <span class="card-holder">LILO PELEKAI</span>
-                    </div>
-                </div>
-                <div class="account-card-header">
-                    <h3>Tarjeta de Crédito</h3>
-                    <span class="badge-faint badge-faint-red">Crédito</span>
-                </div>
-                <p class="account-bank">Lilo Bank – **** 5678</p>
-                <p class="account-balance text-expense">-$1,230.50</p>
-                <div class="account-credit-details"></div>
-                <div class="account-card-footer">
-                    <button class="button-link">Ver Detalles</button>
-                    <button class="button-primary-small">Editar</button>
-                </div>
-            </div>
-
-            <div class="card account-card">
-                <div class="account-card-header">
-                    <h3>Cartera Digital</h3>
-                    <span class="badge-faint badge-faint-green">Débito</span>
-                </div>
-                <p class="account-bank">StitchPay</p>
-                <p class="account-balance" style="margin-top: 1.5rem;">$540.20</p>
-                <div class="account-card-footer">
-                    <button class="button-link">Ver Detalles</button>
-                    <button class="button-primary-small">Editar</button>
-                </div>
-            </div>
 
             <div class="card account-card-add" id="btn-open-add-account">
                 <span class="material-symbols-outlined">add_circle</span>
@@ -88,7 +69,41 @@
         <h3>Añadir Cuenta</h3>
         <button class="sidebar-close" id="btn-close-add-account">&times;</button>
     </div>
-    <!-- Formulario de nueva cuenta (campos por implementar) -->
+
+    <form th:action="@{/cuentas}" method="post" th:object="${cuentaDTO}" class="stack">
+        <!-- CSRF -->
+        <input th:if="${_csrf != null}" type="hidden"
+               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <label>Nombre
+            <input type="text" th:field="*{nombre}" placeholder="Mi Débito / Mi Visa" required maxlength="100"/>
+        </label>
+
+        <label>Tipo
+            <select th:field="*{tipo}" required>
+                <option th:each="t : ${tipos}" th:value="${t}" th:text="${t}"></option>
+            </select>
+
+        </label>
+
+        <div class="grid-2" id="credit-fields">
+            <label>Día de corte
+                <input type="number" th:field="*{diaCorte}" min="1" max="31" placeholder="15"/>
+            </label>
+            <label>Día de pago
+                <input type="number" th:field="*{diaPago}" min="1" max="31" placeholder="2"/>
+            </label>
+        </div>
+
+        <label>Límite de crédito (opcional)
+            <input type="number" step="0.01" th:field="*{limiteCredito}" placeholder="20000.00"/>
+        </label>
+
+        <button type="submit" class="button-primary">Guardar</button>
+
+        <p class="form-msg success" th:if="${created}">¡Cuenta creada!</p>
+        <p class="form-msg error" th:if="${error}" th:text="${error}"></p>
+    </form>
 </aside>
 <script th:src="@{/js/scripts.js}" defer></script>
 </body>

@@ -10,7 +10,8 @@
 <a class="skip-link" href="#main">Saltar al contenido</a>
 
 <!-- Navbar reutilizable -->
-<div th:replace="~{fragments/layout :: navbar}"></div>
+<!-- en templates/home/index.html -->
+<header th:replace="~{fragments/layout :: navbar('home')}"></header>
 
 <main id="main" class="site-main">
     <div class="container">
