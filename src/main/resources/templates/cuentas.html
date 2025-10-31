@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Stitch Finanzas - Cuentas</title>
+
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <link href="../static/css/styles.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="page-wrapper">
+        <header class="site-header">
+            </header>
+
+        <main class="container main-content">
+            
+            <div class="main-headline">
+                <div>
+                    <h1>Gestión de Cuentas</h1>
+                    <p class="subtitle">Aquí están todas tus cuentas, ¡bien organizadas!</p>
+                </div>
+            </div>
+
+            <div class="accounts-grid">
+
+                <div class="card account-card">
+                    <div class="card-preview debit">
+                        <div class="card-preview-header">
+                            <span class="card-chip"></span>
+                            <span class="card-logo">Banco Ohana</span>
+                        </div>
+                        <div class="card-preview-footer">
+                            <span class="card-number">**** **** **** 1234</span>
+                            <span class="card-holder">LILO PELEKAI</span>
+                        </div>
+                    </div>
+                    <div class="account-card-header">
+                        <h3>Cuenta de Ahorros</h3>
+                        <span class="badge-faint badge-faint-green">Débito</span>
+                    </div>
+                    <p class="account-bank">Banco Ohana - **** 1234</p>
+                    <p class="account-balance">$8,250.75</p>
+                    <div class="account-card-footer">
+                        <button class="button-link">Ver Detalles</button>
+                        <button class="button-primary-small">Editar</button>
+                    </div>
+                </div>
+
+                <div class="card account-card">
+                    <div class="card-preview credit">
+                        <div class="card-preview-header">
+                            <span class="card-chip"></span>
+                            <span class="card-logo">Lilo Bank</span>
+                        </div>
+                        <div class="card-preview-footer">
+                            <span class="card-number">**** **** **** 5678</span>
+                            <span class="card-holder">LILO PELEKAI</span>
+                        </div>
+                    </div>
+                    <div class="account-card-header">
+                        <h3>Tarjeta de Crédito</h3>
+                        <span class="badge-faint badge-faint-red">Crédito</span>
+                    </div>
+                    <p class="account-bank">Lilo Bank - **** 5678</p>
+                    <p class="account-balance text-expense">-$1,230.50</p>
+                    
+                    <div class="account-credit-details">
+                        </div>
+                    
+                    <div class="account-card-footer">
+                        <button class="button-link">Ver Detalles</button>
+                        <button class="button-primary-small">Editar</button>
+                    </div>
+                </div>
+
+                <div class="card account-card">
+                    <div class="account-card-header">
+                        <h3>Cartera Digital</h3>
+                        <span class="badge-faint badge-faint-green">Débito</span>
+                    </div>
+                    <p class="account-bank">StitchPay</p>
+                    <p class="account-balance" style="margin-top: 1.5rem;">$540.20</p>
+                    <div class="account-card-footer">
+                        <button class="button-link">Ver Detalles</button>
+                        <button class="button-primary-small">Editar</button>
+                    </div>
+                </div>
+
+                <div class="card account-card-add" id="btn-open-add-account">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <strong>Agregar Nueva Cuenta</strong>
+                    <p>Añade una cuenta de débito, crédito o de inversión.</p>
+                </div>
+
+            </div></main>
+
+        <footer class="site-footer">
+            </footer>
+    </div> <div class="sidebar-overlay" id="add-account-overlay"></div>
+
+    <aside class="sidebar-form" id="add-account-sidebar">
+        </aside>
+
+
+    <script src="../static/js/scripts.js"></script>
+</body>
+</html>

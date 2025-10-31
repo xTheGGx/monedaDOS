@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html class="light" lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Stitch Finanzas - Transacciones</title>
+
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <link href="..\static\css\styles.css" rel="stylesheet" />
+
+</head>
+<body>
+
+    <div class="page-wrapper">
+        <header class="site-header">
+            <div class="container header-container">
+                <div class="logo">
+                    <img alt="Stitch waving hello" class="logo-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQlBU9Y4QOxSOaA6boG4Fosxt7c4gkeg6FLq96pDS_YThwBL67mNPbRLuEtYYMV4yiQGmKLh6BqiRYE4Pv1XtUOt7N8uhmvTrJjSZCcUyOY1jid5j67AwKtiNWwo3g7gakTELXmgPz7VghrL_aVWOpkCcno0SkL5qyQPm_eqZCRZEOBPp7MF5JeA_ioHblHWNlFiF332FeqXqkdG9RvbUoGarN4vDqq1zbZyXOiL1cDg_XzOUbrVyZA8sgdBj1z0yTtYLS-4C_rTQ" />
+                    <h2 class="logo-text">Stitch Finanzas</h2>
+                </div>
+
+                <div class="nav-wrapper">
+                    <nav class="navbar-desktop">
+                        <a class="nav-link" href="panel.html">
+                            <p>Panel de Control</p>
+                        </a>
+                        <a class="nav-link active" href="#">
+                            <p>Transacciones</p>
+                        </a>
+                        <a class="nav-link" href="#">
+                            <p>Cuentas</p>
+                        </a>
+                        <a class="nav-link" href="#">
+                            <p>Reportes</p>
+                        </a>
+                        <a class="nav-link" href="#">
+                            <p>Configuración</p>
+                        </a>
+                    </nav>
+                </div>
+
+                <div class="profile-button-wrapper">
+                    <button class="profile-button">
+                        <span class="material-symbols-outlined">person</span>
+                    </button>
+                    
+                    <div class="profile-dropdown">
+                        <ul>
+                            <li><a href="#" class="dropdown-link">...</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container main-content">
+            
+            <div class="main-headline" style="align-items: center;">
+                <div>
+                    <h1>Transacciones</h1>
+                    <p class="subtitle">Consulta, filtra y registra todos tus movimientos.</p>
+                </div>
+                <button class="button-primary" id="btn-open-sidebar">
+                    <span class="material-symbols-outlined">add</span>
+                    Registrar Movimiento
+                </button>
+            </div>
+
+            <div class="card" style="margin-bottom: 1.5rem;">
+                <h3 class="card-title">Filtros</h3>
+                <form class="filter-form">
+                    <div class="form-group">
+                        <label for="filtro-mes">Mes</label>
+                        <select id="filtro-mes" class="form-select">
+                            <option>Octubre 2024</option>
+                            <option>Septiembre 2024</option>
+                            <option>Agosto 2024</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-tipo">Tipo</label>
+                        <select id="filtro-tipo" class="form-select">
+                            <option>Todos</option>
+                            <option>Ingreso</option>
+                            <option>Gasto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-cat">Categoría</label>
+                        <select id="filtro-cat" class="form-select">
+                            <option>Todas</option>
+                            <option>Comida</option>
+                            <option>Transporte</option>
+                            <option>Ocio</option>
+                            <option>Hogar</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-cuenta">Cuenta</label>
+                        <select id="filtro-cuenta" class="form-select">
+                            <option>Todas</option>
+                            <option>Cuenta Principal</option>
+                            <option>Ahorros</option>
+                        </select>
+                    </div>
+                    <button class="button-secondary" type="submit">Filtrar</button>
+                </form>
+            </div>
+
+            <div class="card transactions-card">
+                <h3 class="card-title">Historial de Movimientos</h3>
+                <div class="table-container">
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th class="col-desktop">Categoría</th>
+                                <th class="col-desktop">Cuenta</th>
+                                <th class="col-right">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-muted">23 Oct</td>
+                                <td class="text-main">Supermercado "Ohana"</td>
+                                <td class="col-desktop"><span class="badge badge-blue">Comida</span></td>
+                                <td class="col-desktop text-muted">Cta. Principal</td>
+                                <td class="col-right text-expense">-$125.50</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">22 Oct</td>
+                                <td class="text-main">Salario - Empresa XYZ</td>
+                                <td class="col-desktop"><span class="badge badge-green">Ingreso</span></td>
+                                <td class="col-desktop text-muted">Cta. Principal</td>
+                                <td class="col-right text-income">+$1,750.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">21 Oct</td>
+                                <td class="text-main">Cine y palomitas</td>
+                                <td class="col-desktop"><span class="badge badge-yellow">Ocio</span></td>
+                                <td class="col-desktop text-muted">Ahorros</td>
+                                <td class="col-right text-expense">-$45.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">20 Oct</td>
+                                <td class="text-main">Pago de Internet</td>
+                                <td class="col-desktop"><span class="badge badge-purple">Hogar</span></td>
+                                <td class="col-desktop text-muted">Cta. Principal</td>
+                                <td class="col-right text-expense">-$60.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">19 Oct</td>
+                                <td class="text-main">Transporte Público</td>
+                                <td class="col-desktop"><span class="badge badge-indigo">Transporte</span></td>
+                                <td class="col-desktop text-muted">Ahorros</td>
+                                <td class="col-right text-expense">-$22.50</td>
+                            </tr>
+                             <tr>
+                                <td class="text-muted">18 Oct</td>
+                                <td class="text-main">Venta de items online</td>
+                                <td class="col-desktop"><span class="badge badge-green">Ingreso</span></td>
+                                <td class="col-desktop text-muted">Ahorros</td>
+                                <td class="col-right text-income">+$200.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">17 Oct</td>
+                                <td class="text-main">Restaurante "Lilo's"</td>
+                                <td class="col-desktop"><span class="badge badge-blue">Comida</span></td>
+                                <td class="col-desktop text-muted">Cta. Principal</td>
+                                <td class="col-right text-expense">-$85.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+        <footer class="site-footer">
+            <div class="container footer-container">
+                <div class="footer-links">
+                    <a href="#">Contacto</a>
+                    <a href="#">Términos y Condiciones</a>
+                    <a href="#">Política de Privacidad</a>
+                </div>
+                <div class="footer-copyright">
+                    <span>© 2024 Stitch Finanzas Personales</span>
+                    <img alt="A small icon of a sleeping Stitch" class="footer-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCtVrbE8UqgdYAXh8WopobpVM-L3G1stwHbdAx6dWzfdsoWuyDrcuXLpcm-Gp7lSbwyAxYbjYtduNCifWXDP5ZeDSvprMZlu-KZuQD-aZ6jHHhv0ubCB_nt3WvwjTqIvtGv1gv45jujSqOBEpZN264VzBzjt1pT3LEjgkyHhOJ2SPuTE7LzYbdVOjItGeQK7PJutdCqbLOTrr7Dw-KH6ezPNsZ4U5-YjNyMwWvzMl4X_vm04HWyDjnwWY0PrbQpfs8sCDhRGsyPv7E" />
+                </div>
+            </div>
+        </footer>
+    </div> <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <aside class="sidebar-form" id="register-sidebar">
+        <div class="sidebar-header">
+            <h3>Registrar Movimiento</h3>
+            <button class="sidebar-close" id="btn-close-sidebar">&times;</button>
+        </div>
+        
+        <form class="sidebar-content" onsubmit="event.preventDefault();">
+            <div class="form-group">
+                <label>Tipo de movimiento</label>
+                <div class="tipo-movimiento">
+                    <button class="tipo-btn ingreso active" id="btn-ingreso">
+                        <span class="material-symbols-outlined">add</span> Ingreso
+                    </button>
+                    <button class="tipo-btn gasto" id="btn-gasto">
+                        <span class="material-symbols-outlined">remove</span> Gasto
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="sidebar-monto">Monto</label>
+                <input type="number" id="sidebar-monto" class="form-input" placeholder="$ 0.00">
+            </div>
+            
+            <div class="form-group">
+                <label for="sidebar-desc">Descripción</label>
+                <input type="text" id="sidebar-desc" class="form-input" placeholder="Ej: Café de la mañana">
+            </div>
+
+            <div class="form-group">
+                <label for="sidebar-cat">Categoría</label>
+                <select id="sidebar-cat" class="form-select">
+                    <option>Comida</option>
+                    <option>Transporte</option>
+                    <option>Ocio</option>
+                    <option>Hogar</option>
+                    <option>Salud</option>
+                    <option>Ingreso</option>
+                    <option>Otros</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sidebar-cuenta">Cuenta</label>
+                <select id="sidebar-cuenta" class="form-select">
+                    <option>Cuenta Principal</option>
+                    <option>Ahorros</option>
+                    <option>Tarjeta de Crédito</option>
+                </select>
+            </div>
+            
+            <button class="button-primary" type="submit" style="width: 100%; justify-content: center; margin-top: auto;">
+                Guardar Movimiento
+            </button>
+        </form>
+
+        <div class="sidebar-footer">
+            <img alt="Stitch giving a financial tip" class="tip-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOydcRyhWfE9_E8WF9AWM145JIV4rxGOdPStTwAcIH1alwmY-uYVd0bipBm5JmOWu8fG9nmE01Q2n7ObXNpVcCM5CJaohkJ3HfbxsxlmAzCxSS1ntZSTCeynqmvIHBusVb4ftLS5KbmUDkPn9-Xq0NYYov4I0c5VZ4c-Ff4mp2y5kVvJAq0w4hKEsb8bl0vbtNNGOUFSLvW5dDtVWNVMXRS4x1nNMVLTMqwqe9op5A55YmTyxKTPrSAhEqvWzTUKHLXwN0Hqzen9U" />
+            <div>
+                <h4>¡Registra sin miedo!</h4>
+                <p>Todo movimiento, grande o pequeño, te ayuda a tomar el control.</p>
+            </div>
+        </div>
+    </aside>
+
+
+    <script src="..\static\js\scripts.js"></script>
+</body>
+</html>
