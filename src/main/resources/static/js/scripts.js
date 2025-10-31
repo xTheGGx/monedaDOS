@@ -9,75 +9,119 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {string} overlayId - El ID del fondo oscuro (overlay)
      */
     const setupSidebar = (triggerId, sidebarId, closeId, overlayId) => {
-        // Busca los elementos en la página
         const openBtn = document.getElementById(triggerId);
         const sidebar = document.getElementById(sidebarId);
         const closeBtn = document.getElementById(closeId);
         const overlay = document.getElementById(overlayId);
 
-        // Si no encontramos todos los elementos, no hacemos nada
-        // (Esto evita errores si estamos en una página que no tiene esa sidebar)
         if (!openBtn || !sidebar || !closeBtn || !overlay) {
             return;
         }
-
-        // Función para abrir
+        
         const openSidebar = () => {
             sidebar.classList.add('active');
             overlay.classList.add('active');
         };
 
-        // Función para cerrar
         const closeSidebar = () => {
             sidebar.classList.remove('active');
             overlay.classList.remove('active');
         };
 
-        // Asignar los eventos
         openBtn.addEventListener('click', openSidebar);
         closeBtn.addEventListener('click', closeSidebar);
         overlay.addEventListener('click', closeSidebar);
     };
 
-    // --- CONFIGURACIÓN DE TODAS LAS SIDEBARS DE LA APP ---
+    // --- CONFIGURACIÓN DE SIDEBARS ---
 
-    // 1. Sidebar de "Registrar Movimiento" (para transacciones.html)
+    // 1. Sidebar de "Registrar Movimiento" (transacciones.html)
     setupSidebar(
-        'btn-open-sidebar',     // Botón que la abre
-        'register-sidebar',     // La sidebar en sí
-        'btn-close-sidebar',    // Botón de cierre
-        'sidebar-overlay'       // El fondo oscuro
+        'btn-open-sidebar',
+        'register-sidebar',
+        'btn-close-sidebar',
+        'sidebar-overlay'
     );
 
-    // 2. Sidebar de "Añadir Cuenta" (para cuentas.html)
+    // 2. Sidebar de "Añadir Cuenta" (cuentas.html)
     setupSidebar(
-        'btn-open-add-account',  // Botón que la abre (la tarjeta punteada)
-        'add-account-sidebar',   // La nueva sidebar
-        'btn-close-add-account', // El nuevo botón de cierre
-        'add-account-overlay'    // El nuevo fondo oscuro
+        'btn-open-add-account',
+        'add-account-sidebar',
+        'btn-close-add-account',
+        'add-account-overlay'
     );
 
 
-    // --- Lógica de botones Ingreso/Gasto (de transacciones.html) ---
-    // (La mantenemos aquí, pero solo funcionará si los botones existen)
+    // --- Lógica de botones Ingreso/Gasto (transacciones.html) ---
+    
     const btnIngreso = document.getElementById('btn-ingreso');
     const btnGasto = document.getElementById('btn-gasto');
+    // El input oculto que guarda el tipo (INGRESO/EGRESO)
+    const tipoMovimientoInput = document.getElementById('tipoMovimiento');
+    // El <select> de categorías
+    const categoriaSelect = document.getElementById('sidebar-cat');
 
-    if (btnIngreso && btnGasto) {
+    // Función para filtrar las categorías en el <select>
+    const filtrarCategorias = (tipo) => {
+        if (!categoriaSelect) return;
+
+        // Reiniciar la selección
+        categoriaSelect.value = ""; 
+        
+        // Recorrer todas las <option>
+        Array.from(categoriaSelect.options).forEach(option => {
+            if (option.value === "") { // Dejar "Selecciona una categoría"
+                option.style.display = "block";
+                return;
+            }
+            // Mostrar solo las opciones que coinciden con el 'data-tipo'
+            if (option.dataset.tipo === tipo) {
+                option.style.display = "block";
+            } else {
+                option.style.display = "none";
+            }
+        });
+    };
+
+    // Evento al hacer clic en INGRESO
+    if (btnIngreso) {
         btnIngreso.addEventListener('click', (e) => {
             e.preventDefault();
             btnIngreso.classList.add('active');
             btnGasto.classList.remove('active');
+            
+            // Actualizar el input oculto
+            if (tipoMovimientoInput) tipoMovimientoInput.value = 'INGRESO';
+            
+            // Filtrar categorías
+            filtrarCategorias('INGRESO');
         });
+    }
+
+    // Evento al hacer clic en GASTO
+    if (btnGasto) {
         btnGasto.addEventListener('click', (e) => {
             e.preventDefault();
             btnGasto.classList.add('active');
             btnIngreso.classList.remove('active');
+            
+            // Actualizar el input oculto
+            if (tipoMovimientoInput) tipoMovimientoInput.value = 'EGRESO';
+            
+            // Filtrar categorías
+            filtrarCategorias('EGRESO');
         });
+    }
+    
+    // Al cargar la página, asegurarse de que las categorías estén filtradas
+    // según el botón activo por defecto (INGRESO)
+    if (document.getElementById('register-sidebar')) {
+         filtrarCategorias('INGRESO');
     }
 
 });
 
+// --- Lógica del Menú de Usuario (Dropdown) ---
 (() => {
     const menu = document.querySelector('.user-menu');
     if (!menu) return;
@@ -88,18 +132,15 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.setAttribute('aria-expanded', open);
     };
 
-    // Abrir/cerrar por click del botón
     btn.addEventListener('click', (e) => {
         e.stopPropagation();
         toggle(menu.dataset.open !== 'true');
     });
 
-    // Cerrar al hacer click fuera
     document.addEventListener('click', (e) => {
         if (!menu.contains(e.target)) toggle(false);
     });
 
-    // Cerrar con Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') toggle(false);
     });
