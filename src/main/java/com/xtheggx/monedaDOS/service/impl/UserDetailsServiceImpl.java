@@ -24,7 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuario userInfo = Optional.ofNullable(usuarioRepository.findByEmailIgnoreCase(username))
-                .orElseThrow();
+                .orElseThrow(() -> new UsernameNotFoundException("No existe usuario con ese email: " + username));
         return UserDetailsImpl.build(userInfo);
     }
 

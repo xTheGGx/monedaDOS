@@ -1,86 +1,60 @@
 package com.xtheggx.monedaDOS.config;
 
-
+import com.xtheggx.monedaDOS.jwt.JwtAuthenticationFilter;
 import com.xtheggx.monedaDOS.service.impl.UserDetailsServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
-import java.security.SecureRandom;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    private UserDetailsServiceImpl uds;
-
+    private final UserDetailsServiceImpl uds;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationProvider authenticationProvider;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/css/**",
-                                "/js/**",
-                                "/favicon.ico",
-                                "/",
-                                "/index",
-                                "/login",
-                                "/register",
-                                "/process_register")
-                        .permitAll()
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/css/**", "/js/**", "/images/**", "/favicon.ico",
+                                "/", "/index", "/login", "/register", "/error", "/auth/login"
+                        ).permitAll()
                         .requestMatchers("/user").hasRole("USER")
                         .requestMatchers("/admin").hasRole("ADMIN")
-                        .anyRequest().authenticated())
-                .formLogin(login -> login
-                        .loginPage("/login") // Tu página de @GetMapping("/login")
-                        .loginProcessingUrl("/login") // URL del POST (Spring la maneja)
-                        .defaultSuccessUrl("/home", true) // A dónde ir si SÍ loguea
-                        .failureUrl("/login?error=true") // A dónde ir si FALLA
-                        .permitAll() // La pág de login es pública
+                        .anyRequest().authenticated()
                 )
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers(
+                                req -> HttpMethod.POST.matches(req.getMethod()) && "/login".equals(req.getServletPath()),
+                                req -> HttpMethod.POST.matches(req.getMethod()) && "/register".equals(req.getServletPath())
+                        )
+                )
+                .formLogin(form -> form.disable())
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
-                        .deleteCookies("JSESSIONID") // NEW Cookies to clear
-                        .invalidateHttpSession(true))
-                .csrf(csrf -> csrf.disable())
-        // .cors(Customizer.withDefaults())
-        ;
+                        .deleteCookies("JSESSIONID")
+                        .invalidateHttpSession(true)
+                )
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(11, new SecureRandom());
-    }
-
-    /*
-     * Provider sera una base de datos
-     */
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(uds);
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
-        return new ProviderManager(authenticationProvider());
-    }
-
 }
+
+

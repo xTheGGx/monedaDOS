@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head th:replace="~{fragments/layout::headFrag(ErrorPage)}"></head>
+<body>
+<header th:replace="~{fragments/layout :: navbar('none')}"></header>
+<main class="container text-center shadow-lg p-3 mb-5 bg-body-tertiary rounded">
+    <h1 th:text="|${httpStatus?.value() ?: 500} - ${httpStatus?.reasonPhrase ?: 'Error Desconocido'}|">500</h1>
+    <p th:utext="${Mensajedeerror}">Error java.lang.NullPointerException</p>
+    <a href="index.html" th:href="@{home/panel.html}">Back to Home Page</a>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

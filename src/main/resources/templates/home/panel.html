@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es" class="light">
+<head th:replace="~{fragments/layout :: headFrag('Panel de Control')}"></head>
+<body>
+<div class="page-wrapper">
+    <div th:replace="~{fragments/layout :: navbar('panel')}"></div>
+    <main class="container main-content">
+        <div class="main-headline">
+            <div>
+                <h1>¡Hola, Ohana!</h1>
+                <p class="subtitle">Aquí tienes un resumen de tus finanzas.</p>
+            </div>
+            <img alt="Stitch saludando" class="headline-stitch-img"
+                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2ynAFirsEhfUmR9pGZlGOxROBz5W4sKkW7m61-QOkHHjjXqVeWmj-AYoHtqHm6Nip0iuc_TDud7WOX0mEv5FDQWChjOUZF7Y-qDa90axCd1HcxOzTxmKFG3MqzHhJfm1hqXhzlNSlWVT0F0zEPZctBVbFTlDCsGYrf8eIQi-aR16KR01irMY1Vsq3YNBYHy1wxzSadvI7YrOMrmx90swbqp3V4oP0xn92QhuICagmI8cEyEuFfe7pD3vt4s0x7yQoCXpn-hT7JVo"/>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card stat-card">
+                <p class="stat-title">Saldo Actual</p>
+                <p class="stat-value">$10,480.50</p>
+            </div>
+            <div class="card stat-card">
+                <p class="stat-title">Ingresos del Mes</p>
+                <p class="stat-value stat-value-income">$3,500.00</p>
+            </div>
+            <div class="card stat-card">
+                <p class="stat-title">Gastos del Mes</p>
+                <p class="stat-value stat-value-expense">$1,820.75</p>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="main-column">
+                <div class="card transactions-card">
+                    <h3 class="card-title">Transacciones Recientes</h3>
+                    <div class="table-container">
+                        <table class="transactions-table">
+                            <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th class="col-desktop">Categoría</th>
+                                <th class="col-right">Monto</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="text-muted">23 Oct</td>
+                                <td class="text-main">Supermercado "Ohana"</td>
+                                <td class="col-desktop"><span class="badge badge-blue">Comida</span></td>
+                                <td class="col-right text-expense">-$125.50</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">22 Oct</td>
+                                <td class="text-main">Salario - Empresa XYZ</td>
+                                <td class="col-desktop"><span class="badge badge-green">Ingreso</span></td>
+                                <td class="col-right text-income">+$1,750.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">21 Oct</td>
+                                <td class="text-main">Cine y palomitas</td>
+                                <td class="col-desktop"><span class="badge badge-yellow">Ocio</span></td>
+                                <td class="col-right text-expense">-$45.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">20 Oct</td>
+                                <td class="text-main">Pago de Internet</td>
+                                <td class="col-desktop"><span class="badge badge-purple">Hogar</span></td>
+                                <td class="col-right text-expense">-$60.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">19 Oct</td>
+                                <td class="text-main">Transporte Público</td>
+                                <td class="col-desktop"><span class="badge badge-indigo">Transporte</span></td>
+                                <td class="col-right text-expense">-$22.50</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-column">
+                <div class="card chart-card">
+                    <h3 class="card-title">Distribución de Gastos</h3>
+                    <div class="chart-wrapper">
+                        <svg class="chart-svg" width="160" height="160" viewBox="0 0 36 36">
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e6e6e6" stroke-width="3"></circle>
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#457B9D" stroke-dasharray="40, 100"
+                                    stroke-linecap="round" stroke-width="3.2"></circle>
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#FFD166" stroke-dasharray="30, 100"
+                                    stroke-dashoffset="-40" stroke-linecap="round" stroke-width="3.2"></circle>
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#A8DADC" stroke-dasharray="20, 100"
+                                    stroke-dashoffset="-70" stroke-linecap="round" stroke-width="3.2"></circle>
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#F1FAEE" stroke-dasharray="10, 100"
+                                    stroke-dashoffset="-90" stroke-linecap="round" stroke-width="3.2"></circle>
+                        </svg>
+                        <div class="chart-center-text">
+                            <span class="chart-total">$1,820</span>
+                            <span class="chart-label">Total Mes</span>
+                        </div>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item"><span class="legend-dot" style="background-color: #457B9D"></span>Comida
+                        </div>
+                        <div class="legend-item"><span class="legend-dot" style="background-color: #FFD166"></span>Ocio
+                        </div>
+                        <div class="legend-item"><span class="legend-dot" style="background-color: #A8DADC"></span>Transporte
+                        </div>
+                        <div class="legend-item"><span class="legend-dot" style="background-color: #E0E0E0"></span>Hogar
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card goal-card">
+                    <div class="goal-header">
+                        <h3 class="card-title">Meta: Viaje a Hawaii</h3>
+                        <span class="material-symbols-outlined text-accent">surfing</span>
+                    </div>
+                    <div class="goal-range">
+                        <span>$3,850</span>
+                        <span>$5,000</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fg" style="width: 77%;"></div>
+                    </div>
+                    <p class="goal-footer-text">¡Ya casi lo logras, sigue así!</p>
+                </div>
+
+                <div class="tip-card">
+                    <img alt="Stitch dando un consejo financiero" class="tip-img"
+                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOydcRyhWfE9_E8WF9AWM145JIV4rxGOdPStTwAcIH1alwmY-uYVd0bipBm5JmOWu8fG9nmE01Q2n7ObXNpVcCM5CJaohkJ3HfbxsxlmAzCxSS1ntZSTCeynqmvIHBusVb4ftLS5KbmUDkPn9-Xq0NYYov4I0c5VZ4c-Ff4mp2y5kVvJAq0w4hKEsb8bl0vbtNNGOUFSLvW5dDtVWNVMXRS4x1nNMVLTMqwqe9op5A55YmTyxKTPrSAhEqvWzTUKHLXwN0Hqzen9U"/>
+                    <div>
+                        <h4 class="tip-title">Consejo del Día de Stitch</h4>
+                        <p class="tip-text">¡Aloha! Ahorra un poquito cada día. ¡Hasta las pequeñas monedas hacen una
+                            gran ola de dinero!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div th:replace="~{fragments/layout :: footer}"></div>
+</div>
+<script th:src="@{/js/scripts.js}" defer></script>
+</body>
+</html>

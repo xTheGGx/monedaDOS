@@ -77,3 +77,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
+(() => {
+    const menu = document.querySelector('.user-menu');
+    if (!menu) return;
+
+    const btn = menu.querySelector('#userMenuBtn');
+    const toggle = (open) => {
+        menu.dataset.open = open ? 'true' : 'false';
+        btn.setAttribute('aria-expanded', open);
+    };
+
+    // Abrir/cerrar por click del botón
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggle(menu.dataset.open !== 'true');
+    });
+
+    // Cerrar al hacer click fuera
+    document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target)) toggle(false);
+    });
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') toggle(false);
+    });
+})();

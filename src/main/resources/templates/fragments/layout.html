@@ -1,39 +1,86 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
-<body>
-<!-- Navbar -->
-<th:block th:fragment="navbar">
-    <header class="site-header">
-        <div class="container header-content">
-            <div class="brand" aria-label="monedaDOS">
-                <span class="logo" aria-hidden="true">💰</span>
-                <a class="brand-text" href="/home">moneda<span class="dos">DOS</span></a>
-            </div>
-            <nav class="main-nav" aria-label="Navegación principal">
-                <ul>
-                    <li><a href="/home">Dashboard</a></li>
-                    <li><a href="#">Ingresos</a></li>
-                    <li><a href="#">Gastos</a></li>
-                    <li><a href="#">Reportes</a></li>
-                    <li><a href="#">Mi Cuenta</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-</th:block>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="es" class="light">
+<head th:fragment="headFrag(title)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>monedaDOS – [[${title}]]</title>
+    <!-- Fuentes externas de Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@700;800&display=swap"
+          rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <!-- Hoja de estilos CSS principal -->
+    <link th:href="@{/css/styles.css}" rel="stylesheet"/>
+    <link th:if="${pageCssHref != null}" rel="stylesheet" th:href="${pageCssHref}"/>
+    <link rel="icon" th:href="@{/favicon.ico}" sizes="any">
 
-<!-- Footer -->
-<th:block th:fragment="footer">
-    <footer class="site-footer">
-        <div class="container footer-content">
-            <p>© 2025 monedaDOS. Todos los derechos reservados.</p>
-            <nav aria-label="Enlaces legales">
-                <a href="#">Términos de Servicio</a>
-                <span class="sep" aria-hidden="true">·</span>
-                <a href="#">Política de Privacidad</a>
-            </nav>
-        </div>
-    </footer>
-</th:block>
+
+</head>
+<body>
+<div class="page-wrapper">
+    <th:block th:fragment="navbar(active)">
+        <header class="site-header">
+            <div class="container header-inner">
+                <a th:href="@{/panel}" class="brand">
+                    <img th:src="@{/images/monedados_logo.png}" alt="monedaDOS" width="36" height="36">
+                    <span>monedaDOS</span>
+                </a>
+
+                <nav class="main-nav" aria-label="Principal">
+                    <div sec:authorize="isAuthenticated()">
+                        <a th:href="@{/panel}"
+                           th:classappend="${active}=='panel' ? ' is-active' : ''">Panel de Control</a>
+                        <a th:href="@{/transacciones}"
+                           th:classappend="${active}=='tx' ? ' is-active' : ''">Transacciones</a>
+                        <a th:href="@{/cuentas}"
+                           th:classappend="${active}=='cuentas' ? ' is-active' : ''">Cuentas</a>
+                        <a th:href="@{/reportes}"
+                           th:classappend="${active}=='reportes' ? ' is-active' : ''">Reportes</a>
+                        <a th:href="@{/config}"
+                           th:classappend="${active}=='config' ? ' is-active' : ''">Configuración</a>
+                    </div>
+                </nav>
+
+                <!-- Menú de usuario -->
+                <div sec:authorize="isAuthenticated()" class="user-menu" data-open="false">
+                    <button type="button" class="avatar-btn" id="userMenuBtn"
+                            aria-haspopup="menu" aria-expanded="false" aria-controls="userMenuPanel">
+                        <span class="material-symbols-outlined">account_circle</span>
+                    </button>
+
+                    <div class="menu" id="userMenuPanel" role="menu" aria-labelledby="userMenuBtn">
+                        <a th:href="@{/perfil}" role="menuitem">
+                            <span class="material-symbols-outlined">person</span> Mi Perfil
+                        </a>
+                        <a th:href="@{/config}" role="menuitem">
+                            <span class="material-symbols-outlined">settings</span> Configuración
+                        </a>
+
+                        <!-- Logout por POST (recomendado en Spring Security) -->
+                        <form th:action="@{/logout}" method="post" role="none">
+                            <input th:if="${_csrf != null}" type="hidden"
+                                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button type="submit" class="logout" role="menuitem">
+                                <span class="material-symbols-outlined">logout</span> Cerrar Sesión
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </th:block>
+    <th:block th:fragment="footer">
+        <footer class="site-footer">
+            <div class="container footer-inner">
+                <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}"></span> monedaDOS</p>
+                <nav aria-label="Secundaria" class="footer-nav">
+                    <a th:href="@{/acerca}">Acerca</a>
+                    <a th:href="@{/soporte}">Soporte</a>
+                </nav>
+            </div>
+        </footer>
+    </th:block>
+</div>
 </body>
 </html>
