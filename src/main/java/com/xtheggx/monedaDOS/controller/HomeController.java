@@ -23,10 +23,6 @@ public class HomeController {
         return "home/panel";
     }
 
-    @GetMapping("/transacciones")
-    public String transacciones() {
-        return "home/transacciones";
-    }
 
 
     @GetMapping("/reportes")

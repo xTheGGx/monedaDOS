@@ -293,3 +293,8 @@ VALUES ('Demo', 'demo@ejemplo.com', '$2y$12$HASH_DE_EJEMPLO_NO_REAL', (SELECT id
 
 INSERT INTO CONFIGURACION_USUARIO (usuario_id, p_necesidades, p_deseos, p_ahorro)
 SELECT id_usuario, 50.00, 30.00, 20.00 FROM USUARIO WHERE email='demo@ejemplo.com';
+
+
+-- Añadir color a categoria
+ALTER TABLE categoria
+    ADD COLUMN COLOR VARCHAR(7)

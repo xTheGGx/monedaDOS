@@ -10,33 +10,48 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 public interface TransaccionRepository extends JpaRepository<Transaccion, Integer> {
 
-    List<Transaccion> findByCuentaIdCuenta(Integer cuentaId);
-    List<Transaccion> findByCategoriaTipo(CategoriaTipo tipo);
-    List<Transaccion> findByCategoriaClasificacion(Clasificacion clasificacion);
-    List<Transaccion> findByCuentaIdCuentaAndCategoriaTipo(Integer cuentaId, CategoriaTipo tipo);
-    List<Transaccion> findByCuentaIdCuentaAndCategoriaClasificacion(Integer cuentaId, Clasificacion clasificacion);
-    List<Transaccion> findByCategoriaTipoAndCategoriaClasificacion(CategoriaTipo tipo, Clasificacion clasificacion);
-    List<Transaccion> findByCuentaIdCuentaAndCategoriaTipoAndCategoriaClasificacion(Integer cuentaId, CategoriaTipo tipo, Clasificacion clasificacion);
-
-    // Página por usuario
-    @Query("SELECT t FROM Transaccion t WHERE t.usuario.idUsuario = :usuarioId")
-    Page<Transaccion> pageByUsuario(@Param("usuarioId") Integer usuarioId, Pageable pageable);
-
-    // Página por usuario + rango de fechas
     @Query("SELECT t FROM Transaccion t " +
-            "WHERE t.usuario.idUsuario = :usuarioId " +
-            "AND t.fecha BETWEEN :from AND :to")
-    Page<Transaccion> pageByUsuarioAndFechaBetween(@Param("usuarioId") Integer usuarioId,
-                                                   @Param("from") LocalDateTime from,
-                                                   @Param("to") LocalDateTime to,
-                                                   Pageable pageable);
+            "WHERE t.usuario.idUsuario = :userId ORDER BY t.fecha DESC")
+    List<Transaccion> findAllByUser(@Param("userId") Long userId);
 
-    // (Opcional) si quieres orden por defecto en la query, normalmente basta con Pageable.sort
-    // pero si lo prefieres explícito:
-    @Query("SELECT t FROM Transaccion t WHERE t.usuario.idUsuario = :usuarioId")
-    Page<Transaccion> pageByUsuarioOrderByFecha(@Param("usuarioId") Integer usuarioId, Pageable pageable);
+    @Query("SELECT t FROM Transaccion t " +
+            "WHERE t.usuario.idUsuario = :userId AND t.cuenta.idCuenta = :cuentaId " +
+            "ORDER BY t.fecha DESC")
+    List<Transaccion> findByUserAndCuenta(@Param("userId") Long userId,
+                                          @Param("cuentaId") Integer cuentaId);
+
+    @Query("SELECT t FROM Transaccion t " +
+            "WHERE t.usuario.idUsuario = :userId AND t.categoria.idCategoria = :catId " +
+            "ORDER BY t.fecha DESC")
+    List<Transaccion> findByUserAndCategoria(@Param("userId") Long userId,
+                                             @Param("catId") Integer categoriaId);
+
+    @Query("SELECT t FROM Transaccion t " +
+            "WHERE t.usuario.idUsuario = :userId AND t.categoria.tipo = :tipo " +
+            "ORDER BY t.fecha DESC")
+    List<Transaccion> findByUserAndTipo(@Param("userId") Long userId,
+                                        @Param("tipo") CategoriaTipo tipo);
+
+
+    // Listados completos (sin paginar)
+    List<Transaccion> findByUsuarioIdUsuarioOrderByFechaDesc(Integer userId);
+
+    List<Transaccion> findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(Integer userId,
+                                                                            LocalDateTime from,
+                                                                            LocalDateTime to);
+
+    // Paginados
+    Page<Transaccion> findByUsuarioIdUsuarioOrderByFechaDesc(Integer userId, Pageable pageable);
+
+    Page<Transaccion> findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(Integer userId,
+                                                                            LocalDateTime from,
+                                                                            LocalDateTime to,
+                                                                            Pageable pageable);
+
+    List<Transaccion> findByCategoriaTipoAndCategoriaClasificacion(CategoriaTipo tipo, Clasificacion clasificacion);
 }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es" class="light">
-<head th:replace="~{fragments/layout :: headFrag('Cuentas')}"></head>
-<th:block th:fragment="pageCss">
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-</th:block>
+<head th:with="pageCssHref=@{/css/pages/cuentas.css}"
+      th:replace="~{fragments/layout :: headFrag('Cuentas')}"></head>
+
+
 <body>
 <div class="page-wrapper">
     <div th:replace="~{fragments/layout :: navbar('cuentas')}"></div>
@@ -63,48 +63,74 @@
     </main>
     <div th:replace="~{fragments/layout :: footer}"></div>
 </div>
+<!-- Overlay -->
 <div class="sidebar-overlay" id="add-account-overlay"></div>
-<aside class="sidebar-form" id="add-account-sidebar">
+
+<!-- Sidebar Añadir Cuenta -->
+<aside class="sidebar-form" id="add-account-sidebar" aria-hidden="true">
     <div class="sidebar-header">
         <h3>Añadir Cuenta</h3>
-        <button class="sidebar-close" id="btn-close-add-account">&times;</button>
+        <button class="sidebar-close" id="btn-close-add-account" aria-label="Cerrar">&times;</button>
     </div>
 
-    <form th:action="@{/cuentas}" method="post" th:object="${cuentaDTO}" class="stack">
-        <!-- CSRF -->
-        <input th:if="${_csrf != null}" type="hidden"
-               th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    <!-- Contenido desplazable del panel -->
+    <div class="sidebar-content">
+        <form th:action="@{/cuentas}" method="post" th:object="${cuentaDTO}" class="form-grid">
 
-        <label>Nombre
-            <input type="text" th:field="*{nombre}" placeholder="Mi Débito / Mi Visa" required maxlength="100"/>
-        </label>
+            <!-- CSRF -->
+            <input th:if="${_csrf != null}" type="hidden"
+                   th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
-        <label>Tipo
-            <select th:field="*{tipo}" required>
-                <option th:each="t : ${tipos}" th:value="${t}" th:text="${t}"></option>
-            </select>
+            <div class="form-field">
+                <label for="cuenta-nombre">Nombre</label>
+                <input id="cuenta-nombre" type="text" th:field="*{nombre}"
+                       placeholder="Mi Débito / Mi Visa" required maxlength="100">
+            </div>
 
-        </label>
+            <div class="form-field">
+                <label for="cuenta-tipo">Tipo</label>
+                <select id="cuenta-tipo" th:field="*{tipo}" required>
+                    <option th:each="t : ${tipos}" th:value="${t}" th:text="${t}"></option>
+                </select>
+            </div>
 
-        <div class="grid-2" id="credit-fields">
-            <label>Día de corte
-                <input type="number" th:field="*{diaCorte}" min="1" max="31" placeholder="15"/>
-            </label>
-            <label>Día de pago
-                <input type="number" th:field="*{diaPago}" min="1" max="31" placeholder="2"/>
-            </label>
+            <!-- Campos exclusivos de crédito -->
+            <div class="form-inline-2 credit-only" id="credit-fields">
+                <div class="form-field">
+                    <label for="cuenta-corte">Día de corte</label>
+                    <input id="cuenta-corte" type="number" th:field="*{diaCorte}" min="1" max="31" placeholder="15">
+                </div>
+                <div class="form-field">
+                    <label for="cuenta-pago">Día de pago</label>
+                    <input id="cuenta-pago" type="number" th:field="*{diaPago}" min="1" max="31" placeholder="2">
+                </div>
+            </div>
+
+            <div class="form-field credit-only">
+                <label for="cuenta-limite">Límite de crédito (opcional)</label>
+                <input id="cuenta-limite" type="number" step="0.01"
+                       th:field="*{limiteCredito}" placeholder="20000.00">
+            </div>
+
+            <div class="sidebar-footer no-border">
+                <button type="submit" class="button-primary w-full">Guardar</button>
+            </div>
+
+            <p class="form-msg success" th:if="${created}">¡Cuenta creada!</p>
+            <p class="form-msg error" th:if="${error}" th:text="${error}"></p>
+        </form>
+    </div>
+
+    <!-- Pie informativo (igual que en “Registrar Movimiento”) -->
+    <div class="sidebar-footer tip">
+        <img src="/images/pet_sit-.png" alt="" width="48" height="48" loading="lazy">
+        <div>
+            <strong>¡Cuentas claras!</strong>
+            <p>Agrega todas tus cuentas para ver tu saldo total.</p>
         </div>
-
-        <label>Límite de crédito (opcional)
-            <input type="number" step="0.01" th:field="*{limiteCredito}" placeholder="20000.00"/>
-        </label>
-
-        <button type="submit" class="button-primary">Guardar</button>
-
-        <p class="form-msg success" th:if="${created}">¡Cuenta creada!</p>
-        <p class="form-msg error" th:if="${error}" th:text="${error}"></p>
-    </form>
+    </div>
 </aside>
+
 <script th:src="@{/js/scripts.js}" defer></script>
 </body>
 </html>

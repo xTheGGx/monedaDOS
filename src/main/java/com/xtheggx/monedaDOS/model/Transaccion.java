@@ -37,4 +37,5 @@ public class Transaccion {
 
     @Column(columnDefinition = "TEXT")
     private String descripcion;
+
 }

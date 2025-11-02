@@ -2,264 +2,232 @@ package com.xtheggx.monedaDOS.service.impl;
 
 import com.xtheggx.monedaDOS.dto.TransaccionDTO;
 import com.xtheggx.monedaDOS.exception.ResourceNotFoundException;
-import com.xtheggx.monedaDOS.model.Categoria;
-import com.xtheggx.monedaDOS.model.CategoriaTipo;
-import com.xtheggx.monedaDOS.model.Clasificacion;
-import com.xtheggx.monedaDOS.model.Transaccion;
+import com.xtheggx.monedaDOS.model.*;
 import com.xtheggx.monedaDOS.repository.CategoriaRepository;
 import com.xtheggx.monedaDOS.repository.CuentaRepository;
 import com.xtheggx.monedaDOS.repository.TransaccionRepository;
 import com.xtheggx.monedaDOS.repository.UsuarioRepository;
 import com.xtheggx.monedaDOS.service.TransaccionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
+@Slf4j
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class TransaccionServiceImpl implements TransaccionService {
-    @Autowired
-    private TransaccionRepository transaccionRepo;
-    @Autowired
-    private CuentaRepository cuentaRepo;
-    @Autowired
-    private CategoriaRepository categoriaRepo;
-    @Autowired
-    private UsuarioRepository usuarioRepo;
+
+    private final TransaccionRepository transRepo;
+    private final CategoriaRepository catRepo;
+    private final CuentaRepository cuentaRepo;
+    private final UsuarioRepository usuarioRepo;
 
     @Override
-    public List<Transaccion> listarTransacciones() {
-        return transaccionRepo.findAll();
+    public List<Transaccion> listar(Long userId, Integer cuentaId, Integer categoriaId, String tipo) {
+        log.debug("TransaccionService.listar userId={} cuentaId={} categoriaId={} tipo={}", userId, cuentaId, categoriaId, tipo);
+        if (cuentaId != null) return transRepo.findByUserAndCuenta(userId, cuentaId);
+        if (categoriaId != null) return transRepo.findByUserAndCategoria(userId, categoriaId);
+        if (tipo != null && !tipo.isBlank()) return transRepo.findByUserAndTipo(userId, CategoriaTipo.valueOf(tipo));
+        return transRepo.findAllByUser(userId);
     }
 
+    @Transactional
     @Override
-    public Transaccion buscarPorId(Integer id) {
-        return transaccionRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Transacción con id " + id + " no encontrada"));
+    public Transaccion crear(Long userId, TransaccionDTO dto) {
+        log.info("TransaccionService.crear userId={} dto={}", userId, dto);
+
+        Usuario u = usuarioRepo.findById(userId).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        Cuenta cta = cuentaRepo.findById(dto.getCuentaId()).orElseThrow(() -> new IllegalArgumentException("Cuenta no encontrada"));
+        if (!cta.getUsuario().getIdUsuario().equals(userId))
+            throw new IllegalArgumentException("La cuenta no pertenece al usuario");
+
+        Categoria cat = catRepo.findById(dto.getCategoriaId()).orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+
+        Transaccion t = new Transaccion();
+        t.setUsuario(u);
+        t.setCuenta(cta);
+        t.setCategoria(cat);
+        t.setMonto(dto.getMonto());
+        t.setDescripcion(dto.getDescripcion());
+        t.setFecha(LocalDateTime.now());
+
+        Transaccion saved = transRepo.save(t);
+        log.info("Transacción creada id={} monto={} tipo={}", saved.getIdTransaccion(), saved.getMonto(), cat.getTipo());
+
+        // Ajuste de saldo según tipo de categoría
+        BigDecimal saldo = cta.getSaldo() == null ? BigDecimal.ZERO : cta.getSaldo();
+        saldo = (cat.getTipo() == CategoriaTipo.INGRESO) ? saldo.add(dto.getMonto()) : saldo.subtract(dto.getMonto());
+        cta.setSaldo(saldo);
+        cuentaRepo.save(cta);
+        log.debug("Saldo de cuenta {} actualizado a {}", cta.getIdCuenta(), saldo);
+
+        return saved;
     }
 
+    @Transactional
     @Override
-    public Transaccion registrarTransaccion(TransaccionDTO nuevaTx) {
-        // Verificar existencia de usuario, cuenta y categoría
-        var usuario = usuarioRepo.findById(nuevaTx.getUsuarioId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Usuario con id " + nuevaTx.getUsuarioId() + " no existe"));
-        var cuenta = cuentaRepo.findById(nuevaTx.getCuentaId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Cuenta con id " + nuevaTx.getCuentaId() + " no existe"));
-        var categoria = categoriaRepo.findById(nuevaTx.getCategoriaId())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Categoría con id " + nuevaTx.getCategoriaId() + " no existe"));
+    public void eliminar(Integer transaccionId) {
+        log.info("TransaccionService.eliminar  transaccionId={}", transaccionId);
+        Transaccion t = transRepo.findById(transaccionId).orElseThrow(() -> new IllegalArgumentException("Transacción no encontrada"));
 
-        // REGLA DE NEGOCIO: validar signo del monto según tipo de categoría
-        BigDecimal monto = nuevaTx.getMonto();
-        CategoriaTipo tipoCat = categoria.getTipo();
-        if ((tipoCat == CategoriaTipo.EGRESO && monto.compareTo(BigDecimal.ZERO) >= 0) ||
-                (tipoCat == CategoriaTipo.INGRESO && monto.compareTo(BigDecimal.ZERO) <= 0)) {
-            throw new IllegalArgumentException(
-                    "El monto debe ser negativo para egresos y positivo para ingresos (categoría "
-                            + categoria.getNombre() + ")");
+        Cuenta cta = t.getCuenta();
+        BigDecimal saldo = cta.getSaldo() == null ? BigDecimal.ZERO : cta.getSaldo();
+        saldo = (t.getCategoria().getTipo() == CategoriaTipo.INGRESO) ? saldo.subtract(t.getMonto()) : saldo.add(t.getMonto());
+        cta.setSaldo(saldo);
+        cuentaRepo.save(cta);
+
+        transRepo.delete(t);
+        log.info("Transacción {} eliminada. Saldo cuenta {} => {}", transaccionId, cta.getIdCuenta(), saldo);
+    }
+
+    @Transactional
+    @Override
+    public Categoria crearCategoria(Long userId, String nombre, String tipo) {
+        log.info("TransaccionService.crearCategoria userId={} nombre={} tipo={}", userId, nombre, tipo);
+        Usuario u = usuarioRepo.findById(userId).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        Categoria c = new Categoria();
+        c.setUsuario(u);
+        c.setNombre(nombre);
+        c.setTipo(CategoriaTipo.valueOf(tipo));
+        c.setClasificacion(Clasificacion.NECESIDAD);
+
+        Categoria saved = catRepo.save(c);
+        log.info("Categoría creada id={} nombre={}", saved.getIdCategoria(), saved.getNombre());
+        return saved;
+    }
+
+
+    private BigDecimal normalizeMonto(BigDecimal monto, CategoriaTipo tipo) {
+        if (monto == null) {
+            throw new IllegalArgumentException("El monto es obligatorio");
         }
+        BigDecimal abs = monto.abs();
+        return (tipo == CategoriaTipo.EGRESO) ? abs.negate() : abs; // EGRESO => negativo, INGRESO => positivo
+    }
 
-        // Mapear DTO a entidad Transaccion
+    private void validarPropiedadCuenta(Cuenta cuenta, Long userId) {
+        if (cuenta == null) throw new ResourceNotFoundException("Cuenta no encontrada");
+        if (cuenta.getUsuario() == null || !cuenta.getUsuario().getIdUsuario().equals(userId)) {
+            throw new IllegalArgumentException("La cuenta no pertenece al usuario");
+        }
+    }
+
+    private void validarPropiedadCategoria(Categoria categoria, Long userId) {
+        if (categoria == null) throw new ResourceNotFoundException("Categoría no encontrada");
+        // Categoría puede ser global (usuario == null) o del usuario
+        if (categoria.getUsuario() != null && !categoria.getUsuario().getIdUsuario().equals(userId)) {
+            throw new IllegalArgumentException("La categoría no pertenece al usuario");
+        }
+    }
+
+    // ---------- Implementaciones solicitadas ----------
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Transaccion> listarTransaccionesPorUsuarioYFechas(Long userId, LocalDateTime from, LocalDateTime to) {
+        if (userId == null) throw new IllegalArgumentException("userId obligatorio");
+        if (from == null || to == null) throw new IllegalArgumentException("Rango de fechas obligatorio");
+        return transRepo.findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(userId.intValue(), from, to);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Transaccion> listarTransaccionesPorUsuario(Long userId) {
+        if (userId == null) throw new IllegalArgumentException("userId obligatorio");
+        return transRepo.findByUsuarioIdUsuarioOrderByFechaDesc(userId.intValue());
+    }
+
+    @Override
+    public void registrarTransaccion(@Valid TransaccionDTO dto) {
+        if (dto == null) throw new IllegalArgumentException("TransaccionDTO es obligatorio");
+        if (dto.getUsuarioId() == null) throw new IllegalArgumentException("usuarioId es obligatorio");
+
+        // 1) Cargar cuenta y categoría y validar pertenencia
+        Cuenta cuenta = cuentaRepo.findById(dto.getCuentaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cuenta no encontrada"));
+        validarPropiedadCuenta(cuenta, dto.getUsuarioId());
+
+        Categoria categoria = catRepo.findById(dto.getCategoriaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
+        validarPropiedadCategoria(categoria, dto.getUsuarioId());
+
+        // 2) Normalizar monto según tipo de la categoría
+        BigDecimal montoNormalizado = normalizeMonto(dto.getMonto(), categoria.getTipo());
+
+        // 3) Construir entidad
         Transaccion tx = new Transaccion();
-        tx.setUsuario(usuario);
+        tx.setUsuario(cuenta.getUsuario());        // mismo usuario de la cuenta
         tx.setCuenta(cuenta);
         tx.setCategoria(categoria);
-        tx.setFecha(LocalDateTime.now());  // usar fecha actual; si se quisiera una fecha específica, se agregaría en DTO
-        tx.setMonto(monto);
-        tx.setDescripcion(nuevaTx.getDescripcion());
+        tx.setMonto(montoNormalizado);
+        tx.setDescripcion(dto.getDescripcion());
+        tx.setFecha(LocalDateTime.now());          // o usa dto.fecha si lo manejas en el DTO
 
-        Transaccion guardada = transaccionRepo.save(tx);
-        // Los triggers en la BD ajustarán el saldo de la cuenta automáticamente después de insertar.
-        // Opcional: podríamos refrescar la entidad Cuenta si quisiéramos el saldo actualizado inmediatamente.
-        return guardada;
+        // 4) Guardar
+        transRepo.save(tx);
     }
 
     @Override
-    public Transaccion actualizarTransaccion(Integer id, TransaccionDTO txDto) {
-        Transaccion existente = transaccionRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Transacción con id " + id + " no encontrada para actualizar"));
+    public void actualizarTransaccion(Integer idTransaccion, @Valid TransaccionDTO dto) {
+        if (idTransaccion == null) throw new IllegalArgumentException("idTransaccion es obligatorio");
+        if (dto == null) throw new IllegalArgumentException("TransaccionDTO es obligatorio");
+        if (dto.getUsuarioId() == null) throw new IllegalArgumentException("usuarioId es obligatorio");
 
-        // Actualizar los campos con la info del DTO (tratamos como reemplazo completo)
-        // Puede implicar cambiar de cuenta o categoría, lo cual afecta el saldo vía triggers.
+        // 1) Cargar transacción
+        Transaccion existente = transRepo.findById(idTransaccion)
+                .orElseThrow(() -> new ResourceNotFoundException("Transacción no encontrada"));
 
-        // Verificar y asignar nuevo usuario si difiere
-        if (!existente.getUsuario().getIdUsuario().equals(txDto.getUsuarioId())) {
-            var nuevoUsuario = usuarioRepo.findById(txDto.getUsuarioId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Usuario con id " + txDto.getUsuarioId() + " no existe"));
-            existente.setUsuario(nuevoUsuario);
+        // 2) Validar que la transacción pertenezca al usuario
+        if (existente.getUsuario() == null || !existente.getUsuario().getIdUsuario().equals(dto.getUsuarioId())) {
+            throw new IllegalArgumentException("No tienes permiso para editar esta transacción");
         }
-        // Verificar y asignar nueva cuenta si difiere
-        if (!existente.getCuenta().getIdCuenta().equals(txDto.getCuentaId())) {
-            var nuevaCuenta = cuentaRepo.findById(txDto.getCuentaId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Cuenta con id " + txDto.getCuentaId() + " no existe"));
-            existente.setCuenta(nuevaCuenta);
-        }
-        // Verificar y asignar nueva categoría si difiere
-        if (!existente.getCategoria().getIdCategoria().equals(txDto.getCategoriaId())) {
-            var nuevaCat = categoriaRepo.findById(txDto.getCategoriaId())
-                    .orElseThrow(() -> new ResourceNotFoundException(
-                            "Categoría con id " + txDto.getCategoriaId() + " no existe"));
-            existente.setCategoria(nuevaCat);
-        }
-        // Actualizar monto y descripción
-        BigDecimal montoNuevo = txDto.getMonto();
-        existente.setDescripcion(txDto.getDescripcion());
 
-        // Validar signo con la categoría (posiblemente actualizada)
-        CategoriaTipo tipoCat = existente.getCategoria().getTipo();
-        if ((tipoCat == CategoriaTipo.EGRESO && montoNuevo.compareTo(BigDecimal.ZERO) >= 0) ||
-                (tipoCat == CategoriaTipo.INGRESO && montoNuevo.compareTo(BigDecimal.ZERO) <= 0)) {
-            throw new IllegalArgumentException(
-                    "El monto debe ser negativo para egreso y positivo para ingreso según categoría seleccionada");
-        }
-        existente.setMonto(montoNuevo);
+        // 3) Cargar y validar cuenta/categoría (si vienen en DTO)
+        Cuenta cuenta = cuentaRepo.findById(dto.getCuentaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cuenta no encontrada"));
+        validarPropiedadCuenta(cuenta, dto.getUsuarioId());
 
-        // Actualizar fecha? Podríamos permitir actualizar la fecha si viene en DTO (no está en TransaccionDTO actualmente).
-        // Por simplicidad mantenemos la fecha original.
+        Categoria categoria = catRepo.findById(dto.getCategoriaId())
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
+        validarPropiedadCategoria(categoria, dto.getUsuarioId());
 
-        // Guardar cambios
-        return transaccionRepo.save(existente);
-        // Los triggers manejarán los ajustes de saldo correspondientes si cuenta o monto cambiaron.
+        // 4) Normalizar monto según tipo
+        BigDecimal montoNormalizado = normalizeMonto(dto.getMonto(), categoria.getTipo());
+
+        // 5) Actualizar campos (conserva fecha original)
+        existente.setCuenta(cuenta);
+        existente.setCategoria(categoria);
+        existente.setMonto(montoNormalizado);
+        existente.setDescripcion(dto.getDescripcion());
+
+        // 6) Guardar
+        transRepo.save(existente);
     }
 
     @Override
-    public Transaccion actualizarParcial(Integer id, Map<String, Object> cambios) {
-        Transaccion tx = transaccionRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Transacción con id " + id + " no encontrada para actualización parcial"));
-
-        // Guardar valores originales para posibles validaciones cruzadas
-        Categoria categoriaOriginal = tx.getCategoria();
-        BigDecimal montoOriginal = tx.getMonto();
-
-        // Flags para saber si cambió algo relevante para validación
-        boolean categoriaCambio = false;
-        boolean montoCambio = false;
-
-        for (Map.Entry<String, Object> entry : cambios.entrySet()) {
-            String campo = entry.getKey();
-            Object valor = entry.getValue();
-            switch(campo) {
-                case "cuentaId":
-                    if (valor instanceof Number num) {
-                        int nuevaCuentaId = num.intValue();
-                        if (!tx.getCuenta().getIdCuenta().equals(nuevaCuentaId)) {
-                            var nuevaCuenta = cuentaRepo.findById(nuevaCuentaId)
-                                    .orElseThrow(() -> new ResourceNotFoundException(
-                                            "Cuenta con id " + nuevaCuentaId + " no existe"));
-                            tx.setCuenta(nuevaCuenta);
-                        }
-                    }
-                    break;
-                case "categoriaId":
-                    if (valor instanceof Number num) {
-                        int nuevaCatId = num.intValue();
-                        if (!tx.getCategoria().getIdCategoria().equals(nuevaCatId)) {
-                            var nuevaCategoria = categoriaRepo.findById(nuevaCatId)
-                                    .orElseThrow(() -> new ResourceNotFoundException(
-                                            "Categoría con id " + nuevaCatId + " no existe"));
-                            tx.setCategoria(nuevaCategoria);
-                            categoriaCambio = true;
-                        }
-                    }
-                    break;
-                case "usuarioId":
-                    if (valor instanceof Number num) {
-                        Long nuevoUsuarioId = num.longValue();
-                        if (!tx.getUsuario().getIdUsuario().equals(nuevoUsuarioId)) {
-                            var nuevoUsuario = usuarioRepo.findById(nuevoUsuarioId)
-                                    .orElseThrow(() -> new ResourceNotFoundException(
-                                            "Usuario con id " + nuevoUsuarioId + " no existe"));
-                            tx.setUsuario(nuevoUsuario);
-                        }
-                    }
-                    break;
-                case "monto":
-                    if (valor instanceof Number num) {
-                        // Convertir número a BigDecimal correctamente
-                        BigDecimal nuevoMonto = new BigDecimal(num.toString());
-                        tx.setMonto(nuevoMonto);
-                        montoCambio = true;
-                    }
-                    break;
-                case "descripcion":
-                    if (valor instanceof String desc) {
-                        tx.setDescripcion(desc);
-                    }
-                    break;
-                case "fecha":
-                    // Si se quisiera permitir cambio de fecha, implementar parseo de fecha desde String.
-                    // En este caso, ignoramos cambios en fecha para no complicar.
-                    break;
-                default:
-                    // Ignorar campos desconocidos
-                    break;
-            }
-        }
-
-        // Validar signo solo si cambió categoría o monto (o ambos)
-        if (categoriaCambio || montoCambio) {
-            Categoria cat = tx.getCategoria();
-            CategoriaTipo tipoCat = cat.getTipo();
-            BigDecimal montoValidar = tx.getMonto();  // monto posiblemente actualizado
-            if ((tipoCat == CategoriaTipo.EGRESO && montoValidar.compareTo(BigDecimal.ZERO) >= 0) ||
-                    (tipoCat == CategoriaTipo.INGRESO && montoValidar.compareTo(BigDecimal.ZERO) <= 0)) {
-                throw new IllegalArgumentException(
-                        "El monto debe ser negativo para egresos y positivo para ingresos (categoría "
-                                + cat.getNombre() + ")");
-            }
-        }
-
-        // Guardar transacción con cambios
-        return transaccionRepo.save(tx);
+    @Transactional(readOnly = true)
+    public Page<Transaccion> listarTransaccionesPaginadas(Long userId, int page, int pageSize) {
+        if (userId == null) throw new IllegalArgumentException("userId obligatorio");
+        PageRequest pr = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "fecha"));
+        return transRepo.findByUsuarioIdUsuarioOrderByFechaDesc(userId.intValue(), pr);
     }
 
     @Override
-    public void eliminarTransaccion(Integer id) {
-        Transaccion tx = transaccionRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Transacción con id " + id + " no encontrada para eliminar"));
-        transaccionRepo.delete(tx);
-        // Los triggers en BD ajustarán el saldo de la cuenta restando el monto eliminado.
+    @Transactional(readOnly = true)
+    public Page<Transaccion> listarTransaccionesPaginadasPorFecha(Long userId, LocalDateTime from, LocalDateTime to, int page, int pageSize) {
+        if (userId == null) throw new IllegalArgumentException("userId obligatorio");
+        if (from == null || to == null) throw new IllegalArgumentException("Rango de fechas obligatorio");
+        PageRequest pr = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "fecha"));
+        return transRepo.findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(userId.intValue(), from, to, pr);
     }
-
-    @Override
-    public List<Transaccion> filtrarPorCuentaTipoYClasificacion(Integer cuentaId, CategoriaTipo tipo, Clasificacion clasif) {
-        return transaccionRepo.findByCuentaIdCuentaAndCategoriaTipoAndCategoriaClasificacion(cuentaId, tipo, clasif);
-    }
-
-    public List<Transaccion> filtrarPorCuenta(Integer cuentaId) {
-        return transaccionRepo.findByCuentaIdCuenta(cuentaId);
-    }
-    public List<Transaccion> filtrarPorTipo(CategoriaTipo tipo) {
-        return transaccionRepo.findByCategoriaTipo(tipo);
-    }
-    public List<Transaccion> filtrarPorClasificacion(Clasificacion clasif) {
-        return transaccionRepo.findByCategoriaClasificacion(clasif);
-    }
-    public List<Transaccion> filtrarPorCuentaYTipo(Integer cuentaId, CategoriaTipo tipo) {
-        return transaccionRepo.findByCuentaIdCuentaAndCategoriaTipo(cuentaId, tipo);
-    }
-
-    @Override
-    public List<Transaccion> filtrarPorCuentaYClasificacion(Integer cuentaId, Clasificacion clasif) {
-        return transaccionRepo.findByCuentaIdCuentaAndCategoriaClasificacion(cuentaId, clasif);
-    }
-
-    @Override
-    public List<Transaccion> filtrarPorTipoYClasificacion(CategoriaTipo tipo, Clasificacion clasif) {
-        return transaccionRepo.findByCategoriaTipoAndCategoriaClasificacion(tipo, clasif);
-    }
-
 }

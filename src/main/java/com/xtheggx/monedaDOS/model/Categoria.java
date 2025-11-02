@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Table(
         name = "CATEGORIA",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uq_categoria", columnNames = {"usuario_id", "nombre"})
+                @UniqueConstraint(name = "uq_categoria", columnNames = {"usuario_id", "nombre", "tipo"})
         }
 )
 @Data @NoArgsConstructor @AllArgsConstructor
@@ -19,7 +19,7 @@ public class Categoria {
     @Column(name = "id_categoria")
     private Integer idCategoria;
 
-    // NULL => global (por defecto)
+    // NULL => global (categorías por defecto compartidas)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
@@ -35,5 +35,6 @@ public class Categoria {
     @Column(length = 10) // NECESIDAD/DESEO/AHORRO o NULL
     private Clasificacion clasificacion;
 
-
+    @Column(length = 7)  // Código de color en formato '#RRGGBB'
+    private String color;
 }

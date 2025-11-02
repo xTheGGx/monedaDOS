@@ -1,13 +1,18 @@
 package com.xtheggx.monedaDOS.dto;
+
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransaccionDTO {
+
+    private Integer idTransaccion;  // null si es nueva, valor si es edición
 
     @NotNull(message = "El id de la cuenta es obligatorio")
     private Integer cuentaId;
@@ -15,15 +20,12 @@ public class TransaccionDTO {
     @NotNull(message = "El id de la categoría es obligatorio")
     private Integer categoriaId;
 
-    @NotNull(message = "El id del usuario es obligatorio")
-    private Long usuarioId;
+    private Long usuarioId;  // se asignará internamente según usuario autenticado
 
     @NotNull(message = "El monto de la transacción es obligatorio")
-    @DecimalMin(value = "0.01", message = "El monto no puede ser cero")
-    private java.math.BigDecimal monto;
+    @Digits(integer = 13, fraction = 2, message = "Formato de monto inválido")
+    private BigDecimal monto;
 
     @Size(max = 255, message = "La descripción debe tener máximo 255 caracteres")
     private String descripcion;
-
-
 }
