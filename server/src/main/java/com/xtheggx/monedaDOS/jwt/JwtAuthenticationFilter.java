@@ -18,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -28,10 +27,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     // Filtros relacionados al Token
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        //futura api rest
-        //final String token = getTokenFromRequest(request);
-        final String token = resolveToken(request);
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        // 1. Obtener el token SOLO del header Authorization
+        final String token = getTokenFromRequest(request);
         final String username;
 
         if (token == null) {
@@ -39,13 +39,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // 2. Extraer usuario y validar
         username = jwtService.getUsernameFromToken(token);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = uds.loadUserByUsername(username);
             if (jwtService.isTokenValid(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // 3. Establecer autenticación en el contexto de Spring Security
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
@@ -59,26 +61,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return authHeader.substring(7);
         }
         return null;
-
     }
-
-    private String resolveToken(HttpServletRequest request) {
-        // 1) Authorization header
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            return authHeader.substring(7);
-        }
-        // 2) Cookie
-        if (request.getCookies() != null) {
-            for (Cookie c : request.getCookies()) {
-                if ("MONEDADOS_TOKEN".equals(c.getName())) {
-                    return c.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
-
 
 }
