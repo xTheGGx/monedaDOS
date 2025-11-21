@@ -1,5 +1,7 @@
 package com.xtheggx.monedaDOS.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +24,7 @@ public class Categoria {
     // NULL => global (categorías por defecto compartidas)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "usuario_id")
+    @JsonIgnore
     private Usuario usuario;
 
     @Column(nullable = false, length = 80)

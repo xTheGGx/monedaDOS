@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "TRANSACCION")
 @Data @NoArgsConstructor @AllArgsConstructor
@@ -19,6 +21,7 @@ public class Transaccion {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnore
     private Usuario usuario;  // quien registra la transacción
 
     @ManyToOne

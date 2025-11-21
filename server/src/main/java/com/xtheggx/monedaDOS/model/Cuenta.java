@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(
         name = "CUENTA",
@@ -23,9 +25,10 @@ public class Cuenta {
     @Column(name = "id_cuenta")
     private Integer idCuenta;
 
-    // Usuario duenio de la cuenta
+    // Usuario dueño de la cuenta
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnore
     private Usuario usuario;
 
     @Column(nullable = false, length = 100)
@@ -49,6 +52,7 @@ public class Cuenta {
     private BigDecimal limiteCredito;
 
     @OneToMany(mappedBy = "cuenta")
+    @JsonIgnore
     private List<Transaccion> transacciones = new ArrayList<>();
 
 }
