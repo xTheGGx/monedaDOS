@@ -1,0 +1,1422 @@
+/* ===== 1. Variables y Configuración Global ===== */
+:root {
+  /* Paleta de Colores (Modo Claro) */
+  --primary: #457B9D;
+  --background-light: #F1FAEE;
+  --card-light: #FFFFFF;
+  --text-light: #1D3557;
+  --text-muted-light: #457B9D;
+  --border-light: #A8DADC;
+  
+  /* Paleta de Colores (Modo Oscuro) */
+  --background-dark: #111e21;
+  --card-dark: #1D3557;
+  --text-dark: #F1FAEE;
+  --text-muted-dark: #A8DADC;
+  --border-dark: #457B9D;
+
+  /* Colores de Acento */
+  --accent: #FFD166;
+  --income: #6AAB9C;
+  --expense: #E63946;
+
+  /* Fuentes */
+  --font-display: "Inter", sans-serif;
+  --font-heading: "Nunito", sans-serif;
+
+  /* Tamaños */
+  --border-radius: 0.5rem;
+  --border-radius-xl: 1rem;
+}
+
+/* Variables dinámicas para Modo Claro/Oscuro */
+html {
+  --bg: var(--background-light);
+  --card-bg: var(--card-light);
+  --text: var(--text-light);
+  --text-muted: var(--text-muted-light);
+  --border: var(--border-light);
+  --card-bg-alpha: rgba(255, 255, 255, 0.8);
+}
+
+html.dark {
+  --bg: var(--background-dark);
+  --card-bg: var(--card-dark);
+  --text: var(--text-dark);
+  --text-muted: var(--text-muted-dark);
+  --border: var(--border-dark);
+  --card-bg-alpha: rgba(29, 53, 87, 0.8); /* #1D3557 con 80% alpha */
+}
+
+/* Reseteo Básico y Estilos del Body */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-display);
+  background-color: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ===== 2. Clases Utilitarias (Contenedor, etc.) ===== */
+.container {
+  width: 100%;
+  max-width: 1280px; /* Ancho estándar de contenedor */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1rem; /* p-4 móvil */
+}
+
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--border-radius-xl);
+  padding: 1.5rem; /* p-6 */
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); /* shadow-sm */
+}
+
+.text-income { color: var(--income); }
+.text-expense { color: var(--expense); }
+.text-accent { color: var(--accent); }
+.text-muted { color: var(--text-muted); }
+.text-main { font-weight: 500; }
+
+/* ===== 3. Header y Navegación ===== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  background-color: var(--card-bg-alpha);
+  backdrop-filter: blur(4px);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logo-img {
+  height: 2.5rem; /* h-10 */
+  width: 2.5rem; /* w-10 */
+}
+.logo-text {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 700;
+}
+.nav-wrapper {
+  flex: 1; /* Ocupa el espacio restante */
+}
+.navbar-desktop {
+  display: none; /* Oculto en móvil */
+}
+.nav-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 3px solid transparent;
+  color: var(--text-muted);
+  padding: 0.5rem 0.5rem;
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s;
+}
+.nav-link p {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 700;
+}
+.nav-link:hover {
+  color: var(--primary);
+}
+html.dark .nav-link:hover {
+  color: var(--text-dark); /* text-white en el original */
+}
+.nav-link.active {
+  border-bottom-color: var(--primary);
+  color: var(--primary);
+}
+.profile-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+.profile-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.5rem; /* h-10 */
+  width: 2.5rem; /* w-10 */
+  border-radius: 9999px; /* rounded-full */
+  background-color: var(--bg);
+  color: var(--text-muted);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.profile-button:hover {
+  background-color: color-mix(in srgb, var(--border) 30%, transparent);
+}
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ===== 4. Contenido Principal ===== */
+.main-content {
+  flex: 1; /* Crece para llenar el espacio antes del footer */
+  padding-top: 1.5rem; /* p-6 */
+  padding-bottom: 2rem; /* p-8 */
+}
+.main-headline {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem; /* mb-6 */
+}
+.main-headline h1 {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 800;
+}
+.subtitle {
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+.headline-stitch-img {
+  display: none; /* hidden */
+  width: 6rem; /* w-24 */
+  height: 6rem; /* h-24 */
+  margin-top: -1rem;
+}
+
+/* ===== 5. Grids de Contenido ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem; /* gap-6 */
+  margin-bottom: 2rem; /* mb-8 */
+}
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* gap-2 */
+}
+.stat-title {
+  color: var(--text-muted);
+  font-size: 1rem;
+  font-weight: 500;
+}
+.stat-value {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700;
+  letter-spacing: -0.025em; /* tracking-tight */
+}
+.stat-value-income { color: var(--income); }
+.stat-value-expense { color: var(--expense); }
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem; /* gap-6 */
+}
+
+/* ===== 6. Tabla de Transacciones ===== */
+.card-title {
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 700;
+  margin-bottom: 1rem; /* mb-4 */
+}
+.table-container {
+  overflow-x: auto;
+}
+.transactions-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+.transactions-table thead {
+  border-bottom: 1px solid var(--border);
+}
+.transactions-table th,
+.transactions-table td {
+  padding: 0.75rem; /* p-3 */
+  vertical-align: middle;
+}
+.transactions-table th {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.transactions-table tbody tr {
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+}
+.transactions-table tbody tr:last-child {
+  border-bottom: none;
+}
+.col-right {
+  text-align: right;
+  font-weight: 600;
+}
+.col-desktop {
+  display: none; /* Oculto en móvil */
+}
+
+/* Badges de Categoría */
+.badge {
+  font-size: 0.75rem; /* text-xs */
+  font-weight: 600;
+  padding: 0.125rem 0.625rem; /* px-2.5 py-0.5 */
+  border-radius: 9999px; /* rounded-full */
+}
+.badge-blue { background-color: #DBEAFE; color: #1D4ED8; }
+.badge-green { background-color: #D1FAE5; color: #065F46; }
+.badge-yellow { background-color: #FEF3C7; color: #92400E; }
+.badge-purple { background-color: #E9D5FF; color: #5B21B6; }
+.badge-indigo { background-color: #E0E7FF; color: #3730A3; }
+/* ... (Se necesitarían estilos dark para los badges) ... */
+
+
+/* ===== 7. Sidebar (Gráfico y Metas) ===== */
+.sidebar-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* gap-6 */
+}
+.chart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+  position: relative;
+}
+.chart-svg {
+  transform: rotate(-90deg);
+}
+.chart-center-text {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.chart-total {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700;
+}
+.chart-label {
+  font-size: 0.875rem; /* text-sm */
+  color: var(--text-muted);
+}
+.chart-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1rem;
+  font-size: 0.875rem; /* text-sm */
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.legend-dot {
+  width: 0.75rem; /* w-3 */
+  height: 0.75rem; /* h-3 */
+  border-radius: 9999px;
+}
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.goal-range {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem; /* text-sm */
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+.progress-bar-bg {
+  width: 100%;
+  background-color: var(--bg);
+  border-radius: 9999px;
+  height: 0.625rem; /* h-2.5 */
+  margin-bottom: 0.75rem;
+}
+html.dark .progress-bar-bg {
+  background-color: #4B5563; /* gray-700 */
+}
+.progress-bar-fg {
+  background-color: var(--accent);
+  height: 100%;
+  border-radius: 9999px;
+}
+.goal-footer-text {
+  font-size: 0.875rem; /* text-sm */
+  text-align: center;
+  color: var(--text-muted);
+}
+.tip-card {
+  background-color: color-mix(in srgb, var(--primary) 20%, transparent);
+  border-radius: var(--border-radius-xl);
+  padding: 1rem; /* p-4 */
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+html.dark .tip-card {
+  background-color: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+.tip-img {
+  width: 3rem; /* w-12 */
+  height: 3rem; /* h-12 */
+  flex-shrink: 0;
+}
+.tip-title {
+  font-weight: 700;
+  color: var(--text);
+}
+.tip-text {
+  font-size: 0.875rem; /* text-sm */
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* ===== 8. Footer ===== */
+.site-footer {
+  background-color: var(--card-bg);
+  border-top: 1px solid var(--border);
+  margin-top: 2rem; /* mt-8 */
+}
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  font-size: 0.875rem; /* text-sm */
+  color: var(--text-muted);
+}
+.footer-links {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-links a:hover {
+  color: var(--primary);
+}
+html.dark .footer-links a:hover {
+  color: var(--text-dark);
+}
+.footer-copyright {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.footer-img {
+  width: 1.5rem; /* w-6 */
+  height: 1.5rem; /* h-6 */
+}
+
+/* ===== 9. Media Queries (Responsivo) ===== */
+
+/* Tablet (md: 768px) */
+@media (min-width: 768px) {
+  .container {
+    padding: 0 1.5rem; /* md:p-6 */
+  }
+  .main-content {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+  .navbar-desktop {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .main-headline h1 {
+    font-size: 2.25rem; /* md:text-4xl */
+  }
+  .headline-stitch-img {
+    display: block; /* sm:block (usamos 768px) */
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .col-desktop {
+    display: table-cell; /* sm:table-cell (usamos 768px) */
+  }
+  .footer-container {
+    flex-direction: row;
+  }
+  .footer-links {
+    margin-bottom: 0;
+  }
+}
+
+/* Escritorio (lg: 1024px) */
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 2rem; /* lg:p-8 */
+  }
+  .main-content {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .content-grid {
+    grid-template-columns: repeat(3, 1fr); /* lg:grid-cols-3 */
+  }
+  .main-column {
+    grid-column: span 2 / span 2; /* lg:col-span-2 */
+  }
+  .sidebar-column {
+    grid-column: span 1 / span 1; /* lg:col-span-1 */
+  }
+}
+
+/* ===== CSS PARA EL MENÚ DESPLEGABLE DE PERFIL ===== */
+
+/* 1. El contenedor debe ser 'relative' para anclar el menú */
+.profile-button-wrapper {
+    position: relative;
+}
+
+/* 2. El menú desplegable (oculto por defecto) */
+.profile-dropdown {
+    display: none; /* Oculto por defecto */
+    position: absolute;
+    top: 100%; /* Se posiciona justo debajo del wrapper */
+    right: 0;  /* Alineado a la derecha */
+    margin-top: 0.5rem; /* Un pequeño espacio */
+    min-width: 200px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius); /* Usa el radio de borde de tu diseño */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 50; /* Asegura que esté por encima de otros elementos */
+    
+    /* Para que la lista no tenga estilos feos */
+    padding: 0;
+    overflow: hidden; /* Para que los bordes redondeados afecten a los links */
+}
+
+/* 3. El disparador: Muestra el menú cuando se hace 'hover' en el wrapper */
+.profile-button-wrapper:hover .profile-dropdown {
+    display: block;
+}
+
+/* 4. Estilos de la lista y enlaces del menú */
+.profile-dropdown ul {
+    list-style: none;
+    padding: 0.5rem 0; /* Espacio vertical interior */
+    margin: 0;
+}
+
+.profile-dropdown li {
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Espacio entre ícono y texto */
+    padding: 0.75rem 1.25rem;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+/* 5. Efecto 'hover' para los enlaces */
+.dropdown-link:hover {
+    background-color: var(--bg); /* Usa el color de fondo general para el hover */
+}
+
+.dropdown-link .material-symbols-outlined {
+    font-size: 1.25rem; /* 20px */
+    color: var(--text-muted);
+}
+
+/* 6. (Opcional) Estilo para el enlace de "Log Out" */
+.dropdown-link.logout-link {
+    color: var(--expense); /* Color rojo de "gasto" */
+}
+
+.dropdown-link.logout-link .material-symbols-outlined {
+    color: var(--expense);
+}
+
+.dropdown-link.logout-link:hover {
+    background-color: color-mix(in srgb, var(--expense) 10%, transparent);
+}
+
+        /* ----- Estilos para el botón principal ----- */
+        .button-primary {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .button-primary:hover {
+            background-color: color-mix(in srgb, var(--primary) 85%, black);
+        }
+        .button-secondary {
+            background-color: var(--bg);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        /* ----- Estilos para los Filtros ----- */
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.625rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            color: var(--text);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+        }
+        html.dark .form-input, html.dark .form-select {
+             background-color: color-mix(in srgb, var(--bg) 50%, black);
+        }
+
+        /* ----- Estilos para la Barra Lateral Desplegable ----- */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar-form {
+            position: fixed;
+            top: 0;
+            right: -450px; /* Oculta fuera de la pantalla */
+            width: 420px;
+            height: 100vh;
+            background-color: var(--bg);
+            z-index: 100;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-form.active {
+            right: 0; /* Muestra en la pantalla */
+        }
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sidebar-header h3 {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            color: var(--text);
+        }
+        .sidebar-close {
+            font-size: 1.75rem;
+            font-weight: 300;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .sidebar-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+        .tipo-movimiento {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        .tipo-btn {
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            border: 2px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .tipo-btn.ingreso.active {
+            background-color: color-mix(in srgb, var(--income) 15%, transparent);
+            border-color: var(--income);
+            color: var(--income);
+        }
+        .tipo-btn.gasto.active {
+            background-color: color-mix(in srgb, var(--expense) 15%, transparent);
+            border-color: var(--expense);
+            color: var(--expense);
+        }
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .sidebar-footer img {
+            width: 4rem;
+            height: 4rem;
+        }
+        .sidebar-footer h4 {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .sidebar-footer p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        /* ===== 10. Estilos de Página de Login ===== */
+/* (Añade esto al final de tu styles.css) */
+
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 1.5rem;
+    background-color: var(--bg); /* Fondo general de la app */
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px; /* Ancho máximo del formulario */
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-logo {
+    width: 7rem; /* 112px */
+    height: 7rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.login-header h1 {
+    font-family: var(--font-heading);
+    font-size: 1.875rem; /* 30px */
+    font-weight: 800;
+    color: var(--text);
+    margin-top: 1rem;
+}
+
+.login-header p {
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-size: 1rem;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem; /* Espacio entre inputs */
+}
+
+/* Reutilizamos .form-group y .form-input 
+  que definimos en transacciones.html 
+*/
+
+/* Contenedor para el icono y el input */
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon .material-symbols-outlined {
+    position: absolute;
+    left: 0.875rem; /* 14px */
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+/* Ajustamos el .form-input para que tenga padding izquierdo */
+.input-with-icon .form-input {
+    padding-left: 2.75rem; /* 44px */
+    background-color: var(--bg); /* Fondo más claro que la tarjeta */
+}
+
+html.dark .input-with-icon .form-input {
+    background-color: color-mix(in srgb, var(--card-dark) 50%, black);
+}
+
+.forgot-password {
+    text-align: right;
+    margin-top: -0.75rem; /* Acerca el enlace al input */
+}
+
+.forgot-password a {
+    font-size: 0.875rem;
+    color: var(--primary);
+    text-decoration: none;
+}
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+/* Hacemos que el botón principal sea 100% ancho */
+.login-form .button-primary {
+    width: 100%;
+    justify-content: center; /* Centra el texto */
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.login-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.login-footer a {
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+}
+.login-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Estilo para el error de login */
+.login-error {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: color-mix(in srgb, var(--expense) 10%, transparent);
+    color: var(--expense);
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid color-mix(in srgb, var(--expense) 30%, transparent);
+}
+/* ===== 11. Estilos de Página de Registro ===== */
+/* (Añade esto al final de tu styles.css) */
+
+/* Cuadrícula para campos de nombre */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Estilo para el checkbox de términos */
+.form-group-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Espacio entre el check y el texto */
+    padding: 0.25rem 0; /* Espacio vertical ligero */
+}
+
+.form-group-checkbox input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: 0.25rem;
+    accent-color: var(--primary); /* Colorea el check con tu color primario */
+}
+
+.form-group-checkbox label {
+    font-size: 0.875rem; /* 14px */
+    color: var(--text-muted);
+}
+
+.form-group-checkbox label a {
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.form-group-checkbox label a:hover {
+    text-decoration: underline;
+}
+
+/* Ajuste responsive para móviles pequeños */
+@media (max-width: 400px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr; /* Apila los campos de nombre */
+    }
+}
+
+
+/* ===== 12. Estilos de Página de Cuentas ===== */
+
+.accounts-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.accounts-main-column {
+    min-width: 0; /* Arreglo para flexbox/grid */
+}
+
+.accounts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+/* Tarjeta de Cuenta Individual */
+.account-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.account-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+.account-card-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.125rem;
+    font-weight: 700;
+}
+
+.badge-faint {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    flex-shrink: 0;
+}
+.badge-faint-green {
+    background-color: color-mix(in srgb, var(--income) 20%, transparent);
+    color: var(--income);
+}
+.badge-faint-red {
+    background-color: color-mix(in srgb, var(--expense) 20%, transparent);
+    color: var(--expense);
+}
+
+.account-bank {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+
+.account-balance {
+    font-family: var(--font-display);
+    font-size: 2rem; /* 32px */
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin: 1rem 0;
+}
+
+.account-credit-details {
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    margin-top: auto; /* Empuja al fondo si la tarjeta crece */
+    font-size: 0.875rem;
+}
+.account-credit-details div {
+    display: flex;
+    justify-content: space-between;
+}
+.account-credit-details span {
+    color: var(--text-muted);
+}
+.account-credit-details strong {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.account-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* Botón de "Ver Detalles" (estilo link) */
+.button-link {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.2s;
+}
+.button-link:hover {
+    color: color-mix(in srgb, var(--primary) 80%, black);
+}
+
+/* Botón primario pequeño */
+.button-primary-small {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.375rem 0.875rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.button-primary-small:hover {
+    background-color: color-mix(in srgb, var(--primary) 85%, black);
+}
+
+/* Tarjeta para "Añadir Cuenta" */
+.account-card-add {
+    border: 2px dashed var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    cursor: pointer;
+    min-height: 200px;
+}
+.account-card-add:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background-color: color-mix(in srgb, var(--primary) 5%, transparent);
+}
+.account-card-add .material-symbols-outlined {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+.account-card-add strong {
+    font-weight: 600;
+    color: var(--text);
+}
+html.dark .account-card-add strong {
+    color: var(--text-dark);
+}
+
+/* --- Estilos de la Sidebar de Cuentas --- */
+.sidebar-sticky {
+    position: sticky;
+    top: 1.5rem; /* Ajusta esto según necesites */
+}
+
+.sidebar-form-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.sidebar-form-header .tip-img {
+    flex-shrink: 0;
+}
+
+.accounts-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Grupo de botones Radio */
+.form-radio-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+.form-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.form-radio-label:hover {
+    border-color: var(--primary);
+}
+.form-radio-label input[type="radio"] {
+    accent-color: var(--primary);
+}
+.form-radio-label input[type="radio"]:checked + span {
+    color: var(--primary);
+}
+html.dark .form-radio-label {
+    background-color: var(--background-dark);
+}
+
+/* Sección opcional de crédito */
+.credit-details-optional {
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.form-group-label-bold {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Botón de color de acento */
+.button-accent {
+    width: 100%;
+    justify-content: center;
+    background-color: var(--accent);
+    color: var(--text-light); /* Texto oscuro para el fondo amarillo */
+    padding: 0.75rem;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.button-accent:hover {
+    opacity: 0.9;
+}
+
+
+/* --- Media Queries --- */
+@media (min-width: 768px) {
+    .accounts-grid {
+        grid-template-columns: 1fr 1fr; /* 2 columnas en tablet */
+    }
+}
+
+@media (min-width: 1024px) {
+    .accounts-layout {
+        grid-template-columns: 2fr 1fr; /* 2 columnas en desktop */
+        gap: 2rem;
+    }
+}
+
+/* ===== 14. Estilos de Página de Reportes ===== */
+/* (Añade esto al final de tu styles.css) */
+
+.report-bar-chart {
+    display: flex;
+    height: 300px; /* Altura fija para el gráfico */
+    border-bottom: 1px solid var(--border);
+    padding-left: 1rem;
+    margin-top: 2rem;
+}
+
+.bar-chart-y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding-right: 0.5rem;
+    border-right: 1px solid var(--border);
+    height: 100%;
+}
+
+.bar-chart-bars {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end; /* Alinea las barras abajo */
+    flex-grow: 1;
+    height: 100%;
+    padding: 0 1rem;
+}
+
+.bar-group {
+    display: flex;
+    gap: 0.5rem;
+    height: 100%;
+    align-items: flex-end;
+    position: relative; /* Para la etiqueta */
+}
+
+.bar {
+    width: 1rem; /* Ancho de la barra */
+    background-color: #ccc;
+    border-radius: 0.25rem 0.25rem 0 0; /* Bordes redondeados arriba */
+    transition: height 0.3s ease;
+}
+
+.bar.bar-income {
+    background-color: var(--income);
+}
+
+.bar.bar-expense {
+    background-color: var(--expense);
+}
+
+.bar-label {
+    position: absolute;
+    bottom: -1.5rem; /* Debajo de la barra */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.report-legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+/* Reutilizamos .legend-item del panel */
+
+/* Ajuste responsive para filtros de reporte */
+@media (max-width: 768px) {
+    .filter-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Layout base para fijar footer al fondo sin romper nada */
+html, body {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-main {
+  flex: 1 0 auto;
+}
+
+.site-footer {
+  flex-shrink: 0;
+}
+
+/* Header */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #fff;
+  border-bottom: 1px solid #e8edf2;
+}
+
+.header-inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  text-decoration: none;
+  color: #1d3557;
+}
+
+/* Nav principal */
+.main-nav {
+  display: flex;
+  gap: 24px;
+  margin-left: auto;
+}
+
+.main-nav a {
+  color: #37657e;
+  text-decoration: none;
+  padding: 8px 4px;
+  border-radius: 8px;
+}
+
+.main-nav a.is-active {
+  border-bottom: 2px solid #37657e;
+}
+
+/* Menú de usuario (dropdown por click) */
+.user-menu {
+  position: relative;
+  margin-left: 16px;
+}
+
+.avatar-btn {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #eef5f9;
+  border: 1px solid #d6e0e8;
+  cursor: pointer;
+}
+
+.user-menu .menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 240px;
+  background: #fff;
+  border: 1px solid #dfe7ee;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
+  padding: 8px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity .15s ease, transform .15s ease, visibility .15s;
+}
+
+/* Estado abierto */
+.user-menu[data-open="true"] .menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+}
+
+.user-menu .menu a,
+.user-menu .menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  background: none;
+  text-align: left;
+  border-radius: 8px;
+  color: #284155;
+  font: inherit;
+  cursor: pointer;
+}
+
+.user-menu .menu a:hover,
+.user-menu .menu button:hover {
+  background: #f1f7fb;
+}
+
+.user-menu .menu .logout {
+  color: #c62828;
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid #e8edf2;
+  background: #fafcfd;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+}
+
+.footer-nav {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-nav a {
+  color: #37657e;
+  text-decoration: none;
+}
