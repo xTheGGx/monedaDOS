@@ -1,19 +1,18 @@
 package com.xtheggx.monedaDOS.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "CONFIGURACION_USUARIO")
-@Data @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @ToString  @NoArgsConstructor @AllArgsConstructor
 public class ConfiguracionUsuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_config;
+    @Column(name = "id_config")
+    private Long idConfig;
 
     @OneToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false, unique = true)

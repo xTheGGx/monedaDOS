@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(
@@ -14,17 +17,18 @@ import lombok.NoArgsConstructor;
                 @UniqueConstraint(name = "uq_categoria", columnNames = {"usuario_id", "nombre", "tipo"})
         }
 )
-@Data @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @ToString @NoArgsConstructor @AllArgsConstructor
 public class Categoria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_categoria")
-    private Integer idCategoria;
+    private Long idCategoria;
 
     // NULL => global (categorías por defecto compartidas)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "usuario_id")
     @JsonIgnore
+    @ToString.Exclude
     private Usuario usuario;
 
     @Column(nullable = false, length = 80)

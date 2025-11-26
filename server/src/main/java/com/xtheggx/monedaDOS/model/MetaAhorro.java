@@ -1,16 +1,14 @@
 package com.xtheggx.monedaDOS.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "META_AHORRO")
-@Data @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @ToString  @NoArgsConstructor @AllArgsConstructor
 public class MetaAhorro {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
