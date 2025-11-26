@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-@AllArgsConstructor
-public class AuthenticationProvideImpl implements AuthenticationProvider {
+@RequiredArgsConstructor
+public class AuthenticationProviderImpl implements AuthenticationProvider {
     /*
 
      */
