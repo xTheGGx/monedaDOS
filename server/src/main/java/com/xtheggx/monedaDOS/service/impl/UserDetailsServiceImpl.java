@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
 
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -23,7 +22,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Ahora usamos el Optional directamente del repositorio
         Usuario userInfo = usuarioRepository.findByEmailIgnoreCase(username)
                 .orElseThrow(() -> new UsernameNotFoundException("No existe usuario con ese email: " + username));
         return UserDetailsImpl.build(userInfo);

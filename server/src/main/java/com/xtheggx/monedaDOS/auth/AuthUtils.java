@@ -1,5 +1,6 @@
 package com.xtheggx.monedaDOS.auth;
 
+import com.xtheggx.monedaDOS.model.UserDetailsImpl;
 import com.xtheggx.monedaDOS.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -9,11 +10,15 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AuthUtils {
-    private final UsuarioService usuarioService; // agrega un método: Long getIdByEmail(String email)
 
     public Long currentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName(); // por defecto, username = email usado en login
-        return usuarioService.getIdByEmail(email);
+
+        if (auth != null && auth.getPrincipal() instanceof UserDetailsImpl userDetails) {
+            //  Obtenemos el ID directamente de la sesión en memoria sin consultar la base de datos nuevamente.
+            return userDetails.getId();
+        }
+
+        throw new IllegalStateException("No hay usuario autenticado en el contexto de seguridad");
     }
 }

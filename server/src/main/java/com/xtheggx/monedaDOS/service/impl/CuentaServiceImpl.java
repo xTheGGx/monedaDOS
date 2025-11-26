@@ -34,22 +34,29 @@ public class CuentaServiceImpl implements CuentaService {
         return repo.sumSaldoByUsuarioIdUsuario(userId); // o sumar en memoria si no tienes query
     }
 
-    @Transactional
-    @Override
-    public void crear(Long userId, CuentaDTO dto) {
-        log.debug("CuentaService.crear dto={} userId={}", dto, userId);
+@Transactional
+@Override
+public void crear(Long userId, CuentaDTO dto) {
+    log.debug("CuentaService.crear dto={} userId={}", dto, userId);
 
-        Cuenta c = new Cuenta();
-        Usuario userCuenta = usuarioRepo.findByIdUsuario(userId);
+    if (userId == null) {
+        throw new IllegalArgumentException("userId cannot be null");
+    }
+
+    // Verificar duplicados
+    if (repo.existsByUsuarioIdUsuarioAndNombre(userId, dto.getNombre())) {
+        throw new IllegalArgumentException("Ya existe una cuenta con el nombre '" + dto.getNombre() + "'");
+    }
+
+    Cuenta c = new Cuenta();
+    Usuario userCuenta = usuarioRepo.findById(userId).orElse(null);
         c.setUsuario(userCuenta);
         c.setNombre(dto.getNombre());
         c.setTipo(dto.getTipo());
 
-        // Defaults indispensables
         c.setSaldo(BigDecimal.ZERO);
         c.setMoneda("MXN");
 
-        // Solo aplica para crédito; para otros tipos deja null
         if (dto.getTipo() != null && dto.getTipo().name().equals("CREDITO")) {
             c.setDiaCorte(dto.getDiaCorte());
             c.setDiaPago(dto.getDiaPago());
