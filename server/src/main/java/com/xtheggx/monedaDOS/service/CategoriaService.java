@@ -10,7 +10,7 @@ public interface CategoriaService {
 
     Categoria crearCategoria(Long userId, CategoriaDTO dto);
 
-    Categoria actualizarCategoria(Integer categoriaId, Long userId, CategoriaDTO dto);
+    Categoria actualizarCategoria(Long categoriaId, Long userId, CategoriaDTO dto);
 
-    void eliminarCategoria(Integer categoriaId, Long userId);
+    void eliminarCategoria(Long categoriaId, Long userId);
 }

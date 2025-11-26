@@ -32,7 +32,7 @@ public class TransaccionServiceImpl implements TransaccionService {
     private final UsuarioRepository usuarioRepo;
 
     @Override
-    public List<Transaccion> listar(Long userId, Integer cuentaId, Integer categoriaId, String tipo) {
+    public List<Transaccion> listar(Long userId, Long cuentaId, Long categoriaId, String tipo) {
         log.debug("TransaccionService.listar userId={} cuentaId={} categoriaId={} tipo={}", userId, cuentaId, categoriaId, tipo);
         if (cuentaId != null) return transRepo.findByUserAndCuenta(userId, cuentaId);
         if (categoriaId != null) return transRepo.findByUserAndCategoria(userId, categoriaId);
@@ -75,7 +75,7 @@ public class TransaccionServiceImpl implements TransaccionService {
 
     @Transactional
     @Override
-    public void eliminar(Integer transaccionId) {
+    public void eliminar(Long transaccionId) {
         log.info("TransaccionService.eliminar  transaccionId={}", transaccionId);
         Transaccion t = transRepo.findById(transaccionId).orElseThrow(() -> new IllegalArgumentException("Transacción no encontrada"));
 
@@ -137,14 +137,14 @@ public class TransaccionServiceImpl implements TransaccionService {
     public List<Transaccion> listarTransaccionesPorUsuarioYFechas(Long userId, LocalDateTime from, LocalDateTime to) {
         if (userId == null) throw new IllegalArgumentException("userId obligatorio");
         if (from == null || to == null) throw new IllegalArgumentException("Rango de fechas obligatorio");
-        return transRepo.findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(userId.intValue(), from, to);
+        return transRepo.findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(userId.longValue(), from, to);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Transaccion> listarTransaccionesPorUsuario(Long userId) {
         if (userId == null) throw new IllegalArgumentException("userId obligatorio");
-        return transRepo.findByUsuarioIdUsuarioOrderByFechaDesc(userId.intValue());
+        return transRepo.findByUsuarioIdUsuarioOrderByFechaDesc(userId.longValue());
     }
 
     @Override
@@ -171,14 +171,14 @@ public class TransaccionServiceImpl implements TransaccionService {
         tx.setCategoria(categoria);
         tx.setMonto(montoNormalizado);
         tx.setDescripcion(dto.getDescripcion());
-        tx.setFecha(LocalDateTime.now());          // o usa dto.fecha si lo manejas en el DTO
+        tx.setFecha(LocalDateTime.now());          
 
         // 4) Guardar
         transRepo.save(tx);
     }
 
     @Override
-    public void actualizarTransaccion(Integer idTransaccion, @Valid TransaccionDTO dto) {
+    public void actualizarTransaccion(Long idTransaccion, @Valid TransaccionDTO dto) {
         if (idTransaccion == null) throw new IllegalArgumentException("idTransaccion es obligatorio");
         if (dto == null) throw new IllegalArgumentException("TransaccionDTO es obligatorio");
         if (dto.getUsuarioId() == null) throw new IllegalArgumentException("usuarioId es obligatorio");
@@ -219,7 +219,7 @@ public class TransaccionServiceImpl implements TransaccionService {
     public Page<Transaccion> listarTransaccionesPaginadas(Long userId, int page, int pageSize) {
         if (userId == null) throw new IllegalArgumentException("userId obligatorio");
         PageRequest pr = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "fecha"));
-        return transRepo.findByUsuarioIdUsuarioOrderByFechaDesc(userId.intValue(), pr);
+        return transRepo.findByUsuarioIdUsuarioOrderByFechaDesc(userId.longValue(), pr);
     }
 
     @Override
@@ -228,6 +228,6 @@ public class TransaccionServiceImpl implements TransaccionService {
         if (userId == null) throw new IllegalArgumentException("userId obligatorio");
         if (from == null || to == null) throw new IllegalArgumentException("Rango de fechas obligatorio");
         PageRequest pr = PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "fecha"));
-        return transRepo.findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(userId.intValue(), from, to, pr);
+        return transRepo.findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(userId.longValue(), from, to, pr);
     }
 }
