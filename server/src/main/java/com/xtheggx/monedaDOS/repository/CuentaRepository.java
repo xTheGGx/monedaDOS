@@ -1,7 +1,6 @@
 package com.xtheggx.monedaDOS.repository;
 
 import com.xtheggx.monedaDOS.model.Cuenta;
-import com.xtheggx.monedaDOS.model.CuentaTipo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public interface CuentaRepository extends JpaRepository<Cuenta, Integer> {
+public interface CuentaRepository extends JpaRepository<Cuenta, Long> {
     List<Cuenta> findAllByUsuarioIdUsuario(Long usuarioIdUsuario);
 
     @Query("select coalesce(sum(c.saldo),0) from Cuenta c where c.usuario.idUsuario = :uid")
