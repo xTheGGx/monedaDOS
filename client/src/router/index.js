@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
 import Cuentas from '../views/Cuentas.vue';
 import Register from '../views/Register.vue';
+import NotFound from '../views/NotFound.vue';
 
 const routes = [
     {
@@ -36,9 +37,9 @@ const routes = [
 
     // Ruta para manejar 404 - Not Found
     {
-        path: '/:pathMatch(.*)*',
-        name: 'NotFound',
-        redirect: '/error404' // Redirige rutas no definidas a error404
+        path: '/:pathMatch(.*)*', 
+            name: 'NotFound', 
+            component: NotFound
     }
 
 ];
