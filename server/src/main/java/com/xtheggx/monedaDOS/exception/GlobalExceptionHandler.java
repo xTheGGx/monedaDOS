@@ -1,6 +1,9 @@
 package com.xtheggx.monedaDOS.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,126 +13,152 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
 
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /** Maneja errores de validación (Bean Validation) en request bodies */
+    /**
+     * 400 - Error de validación en campos (Bean Validation)
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> manejarArgumentoNoValido(MethodArgumentNotValidException ex) {
-        // Extraer errores de campo
+    public ResponseEntity<ErrorResponse> manejarArgumentoNoValido(MethodArgumentNotValidException ex,
+                                                                  HttpServletRequest request) {
         Map<String, String> erroresCampo = new HashMap<>();
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             erroresCampo.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
-        // Construir respuesta de error
+
         ErrorResponse error = new ErrorResponse(
-                Instant.now().toString(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                "Error de validación en los campos enviados",
+                "Validación fallida",
+                "Error en los campos enviados",
+                request.getRequestURI(),
                 erroresCampo
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    /** Maneja excepciones de recurso no encontrado (404) */
+    /**
+     * 404 - Recurso no encontrado
+     */
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> manejarRecursoNoEncontrado(ResourceNotFoundException ex) {
+    public ResponseEntity<ErrorResponse> manejarRecursoNoEncontrado(ResourceNotFoundException ex,
+                                                                    HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
-                Instant.now().toString(),
                 HttpStatus.NOT_FOUND.value(),
-                "Not Found",
+                "Recurso no encontrado",
                 ex.getMessage(),
-                null
+                request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
-    /** Maneja violaciones de integridad de datos o conflictos (409) */
+    /**
+     * 409 - Conflicto de integridad (ej. email duplicado, borrar categoría en uso)
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponse> manejarViolacionIntegridad(DataIntegrityViolationException ex) {
-        // Mensaje genérico de conflicto, o usar mensaje de la causa si es comprensible
-        String mensaje = "Conflicto con el estado de los datos";
+    public ResponseEntity<ErrorResponse> manejarViolacionIntegridad(DataIntegrityViolationException ex,
+                                                                    HttpServletRequest request) {
+        String mensaje = "Conflicto de datos. La operación no puede completarse.";
+        // Extraemos mensaje útil si es seguro
         if (ex.getRootCause() != null) {
             String detalle = ex.getRootCause().getMessage();
-            // Evitar exponer SQL, pero si es mensaje legible lo incluimos
-            if (detalle != null && !detalle.startsWith("ERROR:")) {
-                mensaje = detalle;
+            // Filtro simple para no mostrar SQL crudo pero dar pistas
+            if (detalle != null && !detalle.toLowerCase().contains("sql syntax")) {
+                mensaje = "Error de integridad: " + detalle;
             }
         }
+
         ErrorResponse error = new ErrorResponse(
-                Instant.now().toString(),
                 HttpStatus.CONFLICT.value(),
-                "Conflict",
+                "Conflicto de datos",
                 mensaje,
-                null
+                request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
-    /** Maneja errores de formato JSON no legible o tipos inválidos en el cuerpo (400) */
+    /**
+     * 400 - JSON malformado
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> manejarMensajeNoLegible(HttpMessageNotReadableException ex) {
+    public ResponseEntity<ErrorResponse> manejarMensajeNoLegible(HttpMessageNotReadableException ex,
+                                                                 HttpServletRequest request) {
         ErrorResponse error = new ErrorResponse(
-                Instant.now().toString(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
-                "Formato JSON inválido o datos no interpretables",
-                null
+                "Formato inválido",
+                "El cuerpo de la petición no es un JSON válido o tiene tipos incorrectos",
+                request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    /** Maneja errores de tipo de argumento (por ejemplo, enum/numero en RequestParam) (400) */
+    /**
+     * 400 - Argumento en URL inválido (ej. enviar letras en un ID numérico)
+     */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ErrorResponse> manejarTipoArgumentoIncorrecto(MethodArgumentTypeMismatchException ex) {
-        String nombreParam = ex.getName();
-        String mensaje = String.format("Valor inválido para el parámetro '%s'", nombreParam);
+    public ResponseEntity<ErrorResponse> manejarTipoArgumentoIncorrecto(MethodArgumentTypeMismatchException ex,
+                                                                        HttpServletRequest request) {
+        String mensaje = String.format("El valor '%s' no es válido para el parámetro '%s'",
+                ex.getValue(), ex.getName());
+
         ErrorResponse error = new ErrorResponse(
-                Instant.now().toString(),
                 HttpStatus.BAD_REQUEST.value(),
-                "Bad Request",
+                "Parámetro inválido",
                 mensaje,
-                null
+                request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    /** Maneja cualquier otra excepción no controlada (500) */
+    /**
+     * 500 - Error inesperado (Catch-all)
+     */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> manejarExcepcionGenerica(Exception ex, HttpServletRequest req) {
-        ApiError body = new ApiError(Instant.now().toString(), req.getRequestURI(), ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(body);
+    public ResponseEntity<ErrorResponse> manejarExcepcionGenerica(Exception ex, HttpServletRequest request) {
+        // TODO: Loguear el error real en el servidor
+        log.error("Error interno no controlado en {}: ", request.getRequestURI(), ex);
+
+        // Al usuario le damos un mensaje genérico unificado
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "Error Interno del Servidor",
+                "Ocurrió un error inesperado. Por favor contacte al soporte.",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    public record ApiError(String timestamp, String path, String message) {
-    }
 
-    // Clase interna o separada para el cuerpo de error unificado
-    static class ErrorResponse {
-        private final String timestamp;
-        private final int status;
-        private final String error;
-        private final String message;
-        private final Map<String, String> fields;
+    // --- CLASE DE RESPUESTA UNIFICADA ---
+    @Getter
+    @Setter
+    public static class ErrorResponse {
+        private String timestamp;
+        private int status;
+        private String error;     // Título corto del error
+        private String message;   // Detalle legible
+        private String path;      // URI donde ocurrió
+        private Map<String, String> validationErrors; // Opcional, solo para validaciones
 
-        public ErrorResponse(String timestamp, int status, String error, String message, Map<String, String> fields) {
-            this.timestamp = timestamp;
+        // Constructor completo
+        public ErrorResponse(int status, String error, String message, String path, Map<String, String> validationErrors) {
+            this.timestamp = LocalDateTime.now().toString();
             this.status = status;
             this.error = error;
             this.message = message;
-            this.fields = fields;
+            this.path = path;
+            this.validationErrors = validationErrors;
         }
 
+        // Constructor simple (sin errores de campo)
+        public ErrorResponse(int status, String error, String message, String path) {
+            this(status, error, message, path, null);
+        }
     }
 }
