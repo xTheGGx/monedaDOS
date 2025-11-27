@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TransaccionService {
-    List<Transaccion> listar(Long userId, Integer cuentaId, Integer categoriaId, String tipo /*INGRESO|EGRESO*/);
+    List<Transaccion> listar(Long userId, Long cuentaId, Long categoriaId, String tipo /*INGRESO|EGRESO*/);
 
     Transaccion crear(Long userId, TransaccionDTO dto);
 
-    void eliminar(Integer transaccionId);
+    void eliminar(Long transaccionId);
 
     Categoria crearCategoria(Long userId, String nombre, String tipo /*INGRESO|EGRESO*/);
 
@@ -24,7 +24,7 @@ public interface TransaccionService {
 
     void registrarTransaccion(@Valid TransaccionDTO transaccionDTO);
 
-    void actualizarTransaccion(Integer idTransaccion, @Valid TransaccionDTO transaccionDTO);
+    void actualizarTransaccion(Long idTransaccion, @Valid TransaccionDTO transaccionDTO);
 
     Page<Transaccion> listarTransaccionesPaginadas(Long userId, int page, int pageSize);
 

@@ -1,15 +1,13 @@
 package com.xtheggx.monedaDOS.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "REPORTE")
-@Data @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @ToString  @NoArgsConstructor @AllArgsConstructor
 public class Reporte {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,13 +12,13 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class TransaccionDTO {
 
-    private Integer idTransaccion;  // null si es nueva, valor si es edición
+    private Long idTransaccion;  // null si es nueva, valor si es edición
 
     @NotNull(message = "El id de la cuenta es obligatorio")
-    private Integer cuentaId;
+    private Long cuentaId;
 
     @NotNull(message = "El id de la categoría es obligatorio")
-    private Integer categoriaId;
+    private Long categoriaId;
 
     private Long usuarioId;  // se asignará internamente según usuario autenticado
 

@@ -1,9 +1,7 @@
 package com.xtheggx.monedaDOS.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,7 +12,7 @@ import java.time.LocalDateTime;
                 @Index(name = "idx_log_usuario_fecha", columnList = "usuario_id, fecha")
         }
 )
-@Data @NoArgsConstructor @AllArgsConstructor
+@Getter @Setter @ToString  @NoArgsConstructor @AllArgsConstructor
 public class LogEvento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

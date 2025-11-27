@@ -62,7 +62,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public Categoria actualizarCategoria(Integer categoriaId, Long userId, CategoriaDTO dto) {
+    public Categoria actualizarCategoria(Long categoriaId, Long userId, CategoriaDTO dto) {
         Categoria categoria = categoriaRepo.findById(categoriaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría con id " + categoriaId + " no encontrada"));
         // Solo permitir editar si pertenece al usuario (o global? Global no editable por usuario)
@@ -83,7 +83,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public void eliminarCategoria(Integer categoriaId, Long userId) {
+    public void eliminarCategoria(Long categoriaId, Long userId) {
         Categoria categoria = categoriaRepo.findById(categoriaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría con id " + categoriaId + " no encontrada"));
         if (categoria.getUsuario() == null || !categoria.getUsuario().getIdUsuario().equals(userId)) {

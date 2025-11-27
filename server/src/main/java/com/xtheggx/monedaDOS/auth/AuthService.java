@@ -7,6 +7,9 @@ import com.xtheggx.monedaDOS.model.Usuario;
 import com.xtheggx.monedaDOS.repository.RolRepository;
 import com.xtheggx.monedaDOS.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.HashMap;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,10 +26,18 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse login(LoginRequest loginRequest) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-        Usuario user = usuarioRepository.findByEmailIgnoreCase(loginRequest.getUsername());
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+        Usuario user = usuarioRepository.findByEmailIgnoreCase(loginRequest.getUsername())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
         UserDetailsImpl userDetails = UserDetailsImpl.build(user);
-        String token = jwtService.getToken(userDetails);
+
+        HashMap<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("uid", user.getIdUsuario()); // Guardamos el ID en el token
+
+        String token = jwtService.getToken(extraClaims, userDetails);
         return AuthResponse.builder()
                 .token(token)
                 .build();
@@ -51,8 +62,11 @@ public class AuthService {
         usuarioRepository.save(nuevoUsuario);
         UserDetailsImpl user = UserDetailsImpl.build(nuevoUsuario);
 
+        HashMap<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("uid", nuevoUsuario.getIdUsuario()); // Guardamos el ID en el token
+
         return AuthResponse.builder()
-                .token(jwtService.getToken(user))
+                .token(jwtService.getToken(extraClaims, user))
                 .build();
     }
 

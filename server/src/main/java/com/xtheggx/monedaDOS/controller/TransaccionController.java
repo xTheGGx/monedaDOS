@@ -33,8 +33,8 @@ public class TransaccionController {
     public ResponseEntity<Page<Transaccion>> listar(
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM") YearMonth mes,
             @RequestParam(required = false) String tipo,
-            @RequestParam(required = false) Integer categoriaId,
-            @RequestParam(required = false) Integer cuentaId,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) Long cuentaId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
@@ -99,7 +99,7 @@ public class TransaccionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Integer id, @Valid @RequestBody TransaccionDTO dto) {
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody TransaccionDTO dto) {
         Long userId = authUtils.currentUserId();
         dto.setUsuarioId(userId);
         dto.setIdTransaccion(id); // Asegurar ID
@@ -108,7 +108,7 @@ public class TransaccionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Integer id) {
+    public ResponseEntity<?> eliminar(@PathVariable Long id) {
         transaccionService.eliminar(id);
         return ResponseEntity.ok(Map.of("mensaje", "Transacción eliminada"));
     }

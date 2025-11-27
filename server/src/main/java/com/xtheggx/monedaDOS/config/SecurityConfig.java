@@ -2,6 +2,9 @@ package com.xtheggx.monedaDOS.config;
 
 import com.xtheggx.monedaDOS.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -11,6 +14,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -26,8 +32,8 @@ public class SecurityConfig {
                 // 1. Deshabilitar CSRF: No es necesario en APIs Stateless porque no usamos cookies de sesión del navegador
                 .csrf(AbstractHttpConfigurer::disable)
                 
-                // 2. Habilitar CORS: Permite que el cliente (Frontend) en otro dominio/puerto consuma la API
-                .cors(cors -> cors.configure(http))
+                // 2. Habilitar CORS: Permite que el cliente en otro dominio/puerto consuma la API
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))                
                 
                 // 3. Definir reglas de autorización de rutas
                 .authorizeHttpRequests(auth -> auth
@@ -44,10 +50,30 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 
-                // 5. Integrar proveedor de autenticación y el filtro JWT antes del filtro estándar de Username/Password
+                // 5. Filtros
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Permitir orígenes específicos del frontend
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
+
+        // Métodos HTTP permitidos
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // Cabeceras permitidas 
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        
+        // Permitir enviar credenciales (cookies, headers de autorización)
+        configuration.setAllowCredentials(true);
+        
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

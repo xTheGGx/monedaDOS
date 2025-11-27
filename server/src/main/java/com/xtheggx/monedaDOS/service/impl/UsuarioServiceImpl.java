@@ -53,14 +53,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
 
-    // --- MÉTODOS CRUD EXISTENTES ---
+    // --- MÉTODOS CRUD  ---
 
     @Override
     public Long getIdByEmail(String email) {
-
-        return usuarioRepository.getUsuarioIdUsuarioByEmail(email);
+        return usuarioRepository.findIdByEmailIgnoreCase(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con email: " + email));
     }
-
     @Override
     public Usuario createUsuario(Usuario usuario) {
         return usuarioRepository.save(usuario);

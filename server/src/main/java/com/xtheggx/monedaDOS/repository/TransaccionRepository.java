@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-public interface TransaccionRepository extends JpaRepository<Transaccion, Integer> {
+public interface TransaccionRepository extends JpaRepository<Transaccion, Long> {
 
     @Query("SELECT t FROM Transaccion t " +
             "WHERE t.usuario.idUsuario = :userId ORDER BY t.fecha DESC")
@@ -23,13 +23,13 @@ public interface TransaccionRepository extends JpaRepository<Transaccion, Intege
             "WHERE t.usuario.idUsuario = :userId AND t.cuenta.idCuenta = :cuentaId " +
             "ORDER BY t.fecha DESC")
     List<Transaccion> findByUserAndCuenta(@Param("userId") Long userId,
-                                          @Param("cuentaId") Integer cuentaId);
+                                          @Param("cuentaId") Long cuentaId);
 
     @Query("SELECT t FROM Transaccion t " +
             "WHERE t.usuario.idUsuario = :userId AND t.categoria.idCategoria = :catId " +
             "ORDER BY t.fecha DESC")
     List<Transaccion> findByUserAndCategoria(@Param("userId") Long userId,
-                                             @Param("catId") Integer categoriaId);
+                                             @Param("catId") Long categoriaId);
 
     @Query("SELECT t FROM Transaccion t " +
             "WHERE t.usuario.idUsuario = :userId AND t.categoria.tipo = :tipo " +
@@ -39,16 +39,16 @@ public interface TransaccionRepository extends JpaRepository<Transaccion, Intege
 
 
     // Listados completos (sin paginar)
-    List<Transaccion> findByUsuarioIdUsuarioOrderByFechaDesc(Integer userId);
+    List<Transaccion> findByUsuarioIdUsuarioOrderByFechaDesc(Long userId);
 
-    List<Transaccion> findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(Integer userId,
+    List<Transaccion> findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(Long userId,
                                                                             LocalDateTime from,
                                                                             LocalDateTime to);
 
     // Paginados
-    Page<Transaccion> findByUsuarioIdUsuarioOrderByFechaDesc(Integer userId, Pageable pageable);
+    Page<Transaccion> findByUsuarioIdUsuarioOrderByFechaDesc(Long userId, Pageable pageable);
 
-    Page<Transaccion> findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(Integer userId,
+    Page<Transaccion> findByUsuarioIdUsuarioAndFechaBetweenOrderByFechaDesc(Long userId,
                                                                             LocalDateTime from,
                                                                             LocalDateTime to,
                                                                             Pageable pageable);

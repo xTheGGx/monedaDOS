@@ -38,7 +38,7 @@ public class CategoriaController {
 
     // 3. Actualizar categoría
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Integer id, @Valid @RequestBody CategoriaDTO dto) {
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody CategoriaDTO dto) {
         Long userId = authUtils.currentUserId();
         Categoria actualizada = categoriaService.actualizarCategoria(id, userId, dto);
         return ResponseEntity.ok(actualizada);
@@ -46,7 +46,7 @@ public class CategoriaController {
 
     // 4. Eliminar categoría
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Integer id) {
+    public ResponseEntity<?> eliminar(@PathVariable Long id) {
         Long userId = authUtils.currentUserId();
         categoriaService.eliminarCategoria(id, userId);
         return ResponseEntity.ok(Map.of("mensaje", "Categoría eliminada"));

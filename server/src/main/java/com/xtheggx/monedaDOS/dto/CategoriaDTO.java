@@ -1,5 +1,8 @@
 package com.xtheggx.monedaDOS.dto;
 
+import com.xtheggx.monedaDOS.model.CategoriaTipo;
+import com.xtheggx.monedaDOS.model.Clasificacion;
+
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,10 +18,10 @@ public class CategoriaDTO {
     private String nombre;
 
     @NotNull(message = "El tipo de categoría es obligatorio")
-    private com.xtheggx.monedaDOS.model.CategoriaTipo tipo;
+    private CategoriaTipo tipo;
 
     // Clasificación es opcional (puede ser null)
-    private com.xtheggx.monedaDOS.model.Clasificacion clasificacion;
+    private Clasificacion clasificacion;
 
     @NotBlank(message = "El color de la categoría es obligatorio")
     private String color;
