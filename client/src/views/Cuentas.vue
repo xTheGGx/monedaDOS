@@ -22,18 +22,12 @@ const nuevaCuenta = ref({
 
 // --- API Calls ---
 const cargarCuentas = async () => {
-    isLoading.value = true;
-    errorMsg.value = '';
     try {
         const res = await api.get('/cuentas');
         cuentas.value = res.data;
-        // Calcular saldo total en frontend
-        saldoTotal.value = cuentas.value.reduce((sum, c) => sum + (c.saldo || 0), 0);
+        saldoTotal.value = cuentas.value.reduce((sum, c) => sum + c.saldo, 0);
     } catch (e) {
-        console.error("Error cargando cuentas", e);
-        errorMsg.value = 'No se pudieron cargar las cuentas';
-    } finally {
-        isLoading.value = false;
+        console.error("Error específico cargando cuentas", e);
     }
 };
 

@@ -28,54 +28,19 @@ const isFormValid = computed(() => {
 });
 
 const handleLogin = async () => {
-    // Reset error
-    errorMsg.value = '';
-    
-    // Validación final
-    if (!isFormValid.value) {
-        errorMsg.value = 'Por favor completa todos los campos correctamente';
-        return;
-    }
-
-    isLoading.value = true;
-
     try {
-        const response = await api.post('/auth/login', {
+        // La respuesta traerá la cookie y el navegador la guardará solo.
+        await api.post('/auth/login', {
             username: email.value,
             password: password.value
         });
         
-        // Validar que el backend envió un token
-        if (!response.data?.token) {
-            throw new Error('Respuesta inválida del servidor');
-        }
-
-        // Guardar token
-        localStorage.setItem('token', response.data.token);
+        // Marcamos en localStorage SOLO que estamos logueados (sin datos sensibles)
+        localStorage.setItem('isAuthenticated', 'true');
         
-        // Opcional: Guardar info del usuario
-        if (response.data.usuario) {
-            localStorage.setItem('usuario', JSON.stringify(response.data.usuario));
-        }
-
-        // Redirigir
         router.push('/cuentas');
-        
     } catch (error) {
-        console.error('Error en login:', error);
-        
-        // Mensajes de error específicos
-        if (error.response?.status === 401) {
-            errorMsg.value = 'Email o contraseña incorrectos';
-        } else if (error.response?.status === 403) {
-            errorMsg.value = 'Cuenta bloqueada. Contacta al administrador';
-        } else if (!error.response) {
-            errorMsg.value = 'No se pudo conectar con el servidor';
-        } else {
-            errorMsg.value = 'Error al iniciar sesión. Intenta de nuevo';
-        }
-    } finally {
-        isLoading.value = false;
+        errorMsg.value = 'Credenciales inválidas. Intenta de nuevo.';
     }
 };
 

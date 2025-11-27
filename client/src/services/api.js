@@ -10,6 +10,45 @@ const api = axios.create({
     withCredentials: true // Pemite que las cookies HttpOnly viajen en las peticiones
 });
 
+// --- INTERCEPTOR DE RESPUESTA ---
+api.interceptors.response.use(
+    (response) => {
+        // Si la respuesta es exitosa (200-299), la dejamos pasar sin cambios
+        return response;
+    },
+    (error) => {
+        // Si hay error, verificamos el código de estado
+        if (error.response) {
+            const status = error.response.status;
 
+            // CASO 1: Sesión expirada o Token inválido (401)
+            if (status === 401) {
+                console.warn('Sesión expirada. Redirigiendo al login...');
+                
+                // Limpiamos la bandera local
+                localStorage.removeItem('isAuthenticated');
+                
+                // Redirigimos al usuario al Login
+                // Usamos window.location para forzar una recarga limpia o router.push
+                // router.push('/login') es más SPA-friendly:
+                router.push('/login');
+            }
+            
+            // CASO 2: Error del servidor (500)
+            if (status >= 500) {
+                console.error('Error crítico del servidor:', error.response.data);
+                alert('Ocurrió un error en el servidor. Por favor intenta más tarde.');
+            }
+        } else if (error.request) {
+            // CASO 3: No hubo respuesta (Backend caído o sin internet)
+            console.error('No se recibió respuesta del servidor.');
+            alert('No se pudo conectar con el servidor. Verifica tu conexión.');
+        }
+
+        // Rechazamos la promesa para que el componente sepa que falló
+        // y pueda mostrar un mensaje específico si lo desea (ej. "Contraseña incorrecta")
+        return Promise.reject(error);
+    }
+);
 
 export default api;
