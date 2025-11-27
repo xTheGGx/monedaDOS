@@ -3,10 +3,17 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-const logout = () => {
-    localStorage.removeItem('token');
-    router.push('/login');
+const logout = async () => {
+    try {
+        await api.post('/auth/logout'); // El backend borra la cookie
+    } catch (e) {
+        console.error(e);
+    } finally {
+        localStorage.removeItem('isAuthenticated');
+        router.push('/login');
+    }
 };
+
 </script>
 
 <template>

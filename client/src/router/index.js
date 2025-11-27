@@ -62,25 +62,18 @@ const router = createRouter({
 
 // Guard de navegación global
 router.beforeEach((to, from, next) => {
-    const token = localStorage.getItem('token');
-    const isAuthenticated = isValidToken(token);
+    // Verificamos la bandera booleana, NO el token real
+    const isAuth = localStorage.getItem('isAuthenticated') === 'true';
 
-    // Actualizar título de la página
-    document.title = to.meta.title || 'MonedaDOS';
-
-    // Ruta requiere autenticación
-    if (to.meta.requiresAuth && !isAuthenticated) {
-        return next('/login');
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!isAuth) {
+            next({ path: '/login' });
+        } else {
+            next();
+        }
+    } else {
+        next();
     }
-    
-    // Ruta es solo para invitados (login/register)
-    if (to.meta.requiresGuest && isAuthenticated) {
-        return next('/cuentas');
-    }
-
-    
-
-    next();
 });
 
 export default router;
