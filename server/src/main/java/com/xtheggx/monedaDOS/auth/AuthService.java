@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,24 +27,45 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public AuthResponse login(LoginRequest loginRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        // Validación de entrada
+        if (loginRequest.getUsername() == null || loginRequest.getUsername().trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre de usuario es requerido");
+        }
 
-        Usuario user = usuarioRepository.findByEmailIgnoreCase(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        if (loginRequest.getPassword() == null || loginRequest.getPassword().trim().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña es requerida");
+        }
+
+        // Normalizar el email (trimear y convertir a minúsculas)
+        String normalizedEmail = loginRequest.getUsername().trim().toLowerCase();
+
+        Usuario user = usuarioRepository.findByEmailIgnoreCase(normalizedEmail)
+                .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(normalizedEmail, loginRequest.getPassword()));
+        } catch (Exception e) {
+            throw new BadCredentialsException("Credenciales inválidas");
+        }
 
         UserDetailsImpl userDetails = UserDetailsImpl.build(user);
 
         HashMap<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("uid", user.getIdUsuario()); // Guardamos el ID en el token
+        extraClaims.put("uid", user.getIdUsuario());
 
         String token = jwtService.getToken(extraClaims, userDetails);
         return AuthResponse.builder()
                 .token(token)
                 .build();
+
     }
 
     public AuthResponse register(RegisterRequest registerRequest) {
+        if (usuarioRepository.findByEmailIgnoreCase(registerRequest.getEmail()).isPresent()) {
+            throw  new RuntimeException("El email ya está en uso.");
+        }
+
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setNombre(registerRequest.getNombre());
         nuevoUsuario.setApellidoPaterno(registerRequest.getApellidoPat());
