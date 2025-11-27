@@ -30,7 +30,6 @@ api.interceptors.response.use(
                 
                 // Redirigimos al usuario al Login
                 // Usamos window.location para forzar una recarga limpia o router.push
-                // router.push('/login') es más SPA-friendly:
                 router.push('/login');
             }
             
@@ -46,7 +45,6 @@ api.interceptors.response.use(
         }
 
         // Rechazamos la promesa para que el componente sepa que falló
-        // y pueda mostrar un mensaje específico si lo desea (ej. "Contraseña incorrecta")
         return Promise.reject(error);
     }
 );
