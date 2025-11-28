@@ -2,7 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Estilos globales extra si los necesitas */
+/* Estilos Globales */
 body {
-  background-color: #FFF8F0; /* Cream milk */
+  background-color: theme('colors.milk-cream');
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  /* Evitar scroll por decoraciones */
+}
+
+@layer components {
+
+  /* --- Botones --- */
+  .btn-primary {
+    @apply w-full bg-cookie-dough hover:bg-cookie-hover text-white rounded-full py-4 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none font-bold flex justify-center items-center gap-2;
+  }
+
+  .link-inline {
+    @apply text-cookie-dough hover:text-cookie-hover transition-colors font-medium;
+  }
+
+  /* --- Formularios --- */
+  .form-label {
+    @apply block text-sm text-brown-muted mb-2 font-medium;
+  }
+
+  .input-pill {
+    @apply w-full bg-white rounded-full py-3 pl-12 pr-4 text-dark-chocolate border-2 border-transparent focus:outline-none focus:border-cookie-dough transition-colors shadow-inner placeholder-brown-muted/50;
+  }
+
+  /* Input específico para password (padding extra a la derecha) */
+  .input-pill-password {
+    @apply pr-12;
+  }
+
+  .input-icon-left {
+    @apply absolute left-4 top-1/2 -translate-y-1/2 text-cookie-dough;
+  }
+
+  .input-icon-right {
+    @apply absolute right-4 top-1/2 -translate-y-1/2 text-brown-muted hover:text-cookie-dough transition-colors;
+  }
+
+  /* --- Feedback --- */
+  .msg-error {
+    @apply p-3 rounded-xl bg-red-50 border border-red-200 text-berry-jam flex items-center gap-2 text-sm mb-4;
+  }
+
+  .msg-success {
+    @apply p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 flex items-center gap-2 text-sm mb-4;
+  }
+
+  .field-error-text {
+    @apply block text-xs text-berry-jam mt-1 ml-4;
+  }
+
+  /* --- Layout --- */
+  .auth-card {
+    @apply bg-oatmeal-paper rounded-3xl p-8 shadow-2xl w-full max-w-md relative z-10;
+  }
+
+  .auth-bg-icon {
+    @apply absolute select-none pointer-events-none opacity-20 animate-bounce;
+    animation-fill-mode: both;
+  }
 }

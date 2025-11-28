@@ -7,11 +7,17 @@ export default {
   theme: {
     extend: {
       colors: {
-        'cookie-dough': '#D4A373',
-        'dark-chocolate': '#4A3B32',
-        'oatmeal-paper': '#F3E5D8',
-        'berry-jam': '#E07A5F',
-        'matcha-tea': '#81B29A',
+        // Paleta "Cafetería"
+        'cookie-dough': '#D4A373',       // Dorado/Beige fuerte (Botones, Iconos)
+        'cookie-hover': '#C89563',       // Hover del botón
+        'dark-chocolate': '#4A3B32',     // Texto principal
+        'oatmeal-paper': '#F3E5D8',      // Fondo de tarjeta
+        'milk-cream': '#FFF8F0',         // Fondo global
+        'brown-muted': '#8B6F47',        // Texto secundario / Labels
+        'berry-jam': '#E07A5F',          // Errores
+      },
+      animation: {
+        'float': 'bounce 3s infinite',
       }
     },
   },
