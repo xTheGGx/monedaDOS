@@ -1,6 +1,7 @@
 package com.xtheggx.monedaDOS.jwt;
 
 import com.xtheggx.monedaDOS.service.impl.UserDetailsServiceImpl;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -38,20 +39,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        username = jwtService.getUsernameFromToken(token);
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = uds.loadUserByUsername(username);
-            if (jwtService.isTokenValid(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                // 3. Establecer autenticación en el contexto de Spring Security
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+        try {
+            username = jwtService.getUsernameFromToken(token);
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = uds.loadUserByUsername(username);
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    // 3. Establecer autenticación en el contexto de Spring Security
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             }
+        } catch (ExpiredJwtException e) {
+            // Log el token expirado para debugging
+            logger.debug("Token JWT expirado: " + e.getMessage());
+            // Limpiar cualquier cookie de token expirado
+            clearExpiredTokenCookie(response);
+            // Continuar sin autenticación - el usuario deberá autenticarse nuevamente
+        } catch (Exception e) {
+            // Manejar otros errores de JWT
+            logger.debug("Error al procesar JWT: " + e.getMessage());
         }
+
 
         filterChain.doFilter(request, response);
     }
+
+    private void clearExpiredTokenCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("accessToken", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+    }
+
 
     private String getTokenFromRequest(HttpServletRequest request) {
         // 1. Intentar obtener de la Cookie (Prioridad)
