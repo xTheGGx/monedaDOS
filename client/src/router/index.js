@@ -3,6 +3,7 @@ import Login from '../views/Login.vue';
 import Cuentas from '../views/Cuentas.vue';
 import Register from '../views/Register.vue';
 import NotFound from '../views/NotFound.vue';
+import Dashboard from '../views/Dashboard.vue';
 
 const routes = [
     {
@@ -31,6 +32,14 @@ const routes = [
         meta: {
             requiresAuth: true,
             tittle: 'Cuentas - monedaDOS'
+        } // Requiere autenticación
+    },
+    {
+        path: '/dashboard',
+        component: Dashboard,
+        meta: {
+            requiresAuth: true,
+            tittle: 'Dashboard - monedaDOS'
         } // Requiere autenticación
     },
     // A Panel, Transacciones, etc.

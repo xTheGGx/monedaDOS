@@ -49,4 +49,31 @@ api.interceptors.response.use(
     }
 );
 
+// Servicios de Transacciones
+export const transaccionService = {
+  // Obtener todas las transacciones del usuario
+  getAll: () => api.get('/transacciones'),
+  
+  // Crear nueva transacción
+  create: (data) => api.post('/transacciones', data),
+  
+  // Eliminar transacción
+  delete: (id) => api.delete(`/transacciones/${id}`),
+  
+  // Obtener por cuenta
+  getByCuenta: (cuentaId) => api.get(`/transacciones/cuenta/${cuentaId}`)
+};
+
+// Servicios de Categorías
+export const categoriaService = {
+  getAll: () => api.get('/categorias'),
+  getByTipo: (tipo) => api.get(`/categorias/tipo/${tipo}`) // INGRESO o EGRESO
+};
+
+// Servicios de Cuentas
+export const cuentaService = {
+  getAll: () => api.get('/cuentas'),
+  getById: (id) => api.get(`/cuentas/${id}`)
+};
+
 export default api;
