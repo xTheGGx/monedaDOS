@@ -22,7 +22,7 @@ api.interceptors.response.use(
             const status = error.response.status;
 
             // CASO 1: Sesión expirada o Token inválido (401)
-            if (status === 401) {
+            if (status === 401 && !error.config.url.includes('/auth/login')) {
                 console.warn('Sesión expirada. Redirigiendo al login...');
                 
                 // Limpiamos la bandera local

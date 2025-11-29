@@ -36,21 +36,24 @@ public class AuthService {
             throw new IllegalArgumentException("La contraseña es requerida");
         }
 
-        // Normalizar el email (trimear y convertir a minúsculas)
+        // Normalizar el email
         String normalizedEmail = loginRequest.getUsername().trim().toLowerCase();
 
+        // Buscar usuario en la base de datos
         Usuario user = usuarioRepository.findByEmailIgnoreCase(normalizedEmail)
                 .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(normalizedEmail, loginRequest.getPassword()));
-        } catch (Exception e) {
+        // Verificar contraseña
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getContrasena())) {
             throw new BadCredentialsException("Credenciales inválidas");
         }
 
-        UserDetailsImpl userDetails = UserDetailsImpl.build(user);
+        // Autenticar con AuthenticationManager
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(user.getEmail(), loginRequest.getPassword()));
 
+        // Crear UserDetails y generar token
+        UserDetailsImpl userDetails = UserDetailsImpl.build(user);
         HashMap<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("uid", user.getIdUsuario());
 
@@ -58,38 +61,36 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(token)
                 .build();
-
     }
 
     public AuthResponse register(RegisterRequest registerRequest) {
         if (usuarioRepository.findByEmailIgnoreCase(registerRequest.getEmail()).isPresent()) {
-            throw  new RuntimeException("El email ya está en uso.");
+            throw new RuntimeException("El email ya está en uso.");
         }
 
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setNombre(registerRequest.getNombre());
         nuevoUsuario.setApellidoPaterno(registerRequest.getApellidoPat());
         nuevoUsuario.setApellidoMaterno(registerRequest.getApellidoMat());
-        nuevoUsuario.setEmail(registerRequest.getEmail());
+        nuevoUsuario.setEmail(registerRequest.getEmail().trim().toLowerCase());
 
-        // 2. Encriptar la contraseña
+        // Encriptar la contraseña
         nuevoUsuario.setContrasena(passwordEncoder.encode(registerRequest.getPassword()));
 
-        // 3. Asignar el ROL por defecto
+        // Asignar el ROL por defecto
         Rol rolUsuario = rolRepository.findByNombreIgnoreCase("USER")
                 .orElseThrow(() -> new RuntimeException("Error: Rol 'USER' no encontrado."));
 
         nuevoUsuario.setRol(rolUsuario);
-
         usuarioRepository.save(nuevoUsuario);
-        UserDetailsImpl user = UserDetailsImpl.build(nuevoUsuario);
 
+        // Generar token
+        UserDetailsImpl user = UserDetailsImpl.build(nuevoUsuario);
         HashMap<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("uid", nuevoUsuario.getIdUsuario()); // Guardamos el ID en el token
+        extraClaims.put("uid", nuevoUsuario.getIdUsuario());
 
         return AuthResponse.builder()
                 .token(jwtService.getToken(extraClaims, user))
                 .build();
     }
-
 }
