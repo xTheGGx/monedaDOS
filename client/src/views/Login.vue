@@ -18,7 +18,7 @@ const isEmailValid = computed(() => {
 });
 
 const isPasswordValid = computed(() => {
-  return password.value === '' || password.value.length >= 6;
+  return password.value === '' || password.value.length >= 3;
 });
 
 const isFormValid = computed(() => {
