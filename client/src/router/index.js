@@ -3,6 +3,7 @@ import Login from '../views/Login.vue';
 import Cuentas from '../views/Cuentas.vue';
 import Register from '../views/Register.vue';
 import NotFound from '../views/NotFound.vue';
+import Transacciones from '../views/Transacciones.vue';
 
 const routes = [
     {
@@ -34,6 +35,15 @@ const routes = [
         meta: {
             requiresAuth: true,
             tittle: 'Cuentas - monedaDOS'
+        } // Requiere autenticación
+    },
+    {
+        path: '/transacciones',
+        component: Transacciones,
+        name : 'Transacciones',
+        meta: {
+            requiresGuest: true, // Requeries guest para pruebas
+            tittle: 'Transacciones - monedaDOS'
         } // Requiere autenticación
     },
     /* {

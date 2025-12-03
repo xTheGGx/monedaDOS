@@ -52,11 +52,13 @@ api.interceptors.response.use(
 // Servicios de Transacciones
 export const transaccionService = {
   // Obtener todas las transacciones del usuario
-  getAll: () => api.get('/transacciones'),
+  getAll: (params) => api.get('/transacciones', { params }),
   
   // Crear nueva transacción
   create: (data) => api.post('/transacciones', data),
-  
+  // Actualizar transacción existente
+  update: (id, data) => api.put(`/transacciones/${id}`, data),
+
   // Eliminar transacción
   delete: (id) => api.delete(`/transacciones/${id}`),
   
