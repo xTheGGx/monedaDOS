@@ -1,5 +1,7 @@
 package com.xtheggx.monedaDOS.auth;
 
+import com.xtheggx.monedaDOS.dto.LoginRequest;
+import com.xtheggx.monedaDOS.dto.RegisterRequest;
 import com.xtheggx.monedaDOS.jwt.JwtService;
 import com.xtheggx.monedaDOS.model.Rol;
 import com.xtheggx.monedaDOS.model.UserDetailsImpl;

@@ -1,6 +1,6 @@
 package com.xtheggx.monedaDOS.service;
 
-import com.xtheggx.monedaDOS.dto.RegistroDTO;
+import com.xtheggx.monedaDOS.dto.RegisterRequest;
 import com.xtheggx.monedaDOS.model.Usuario;
 
 import java.util.List;
@@ -22,6 +22,6 @@ public interface UsuarioService {
      * Proceso de negocio para registrar un nuevo usuario.
      * Se encarga de la conversión de DTO, encriptación y asignación de rol.
      */
-    void registrarUsuario(RegistroDTO registroDTO);
+    void registrarUsuario(RegisterRequest registroDTO);
 
 }

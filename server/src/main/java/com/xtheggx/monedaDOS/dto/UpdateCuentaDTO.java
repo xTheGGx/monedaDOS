@@ -13,23 +13,18 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CuentaDTO {
+public class UpdateCuentaDTO {
 
     @NotBlank(message = "El nombre de la cuenta es obligatorio")
     private String nombre;
 
-    // Id de la divisa (llave foránea a la entidad Divisa)
     @NotNull(message = "La divisa es obligatoria")
     private Long divisaId;
 
     @NotNull(message = "El tipo de cuenta es obligatorio")
     private CuentaTipo tipo;
 
-    @DecimalMin(value = "0.00", inclusive = true,
-            message = "El saldo inicial no puede ser negativo")
-    private BigDecimal saldoInicial;
-
-    // Solo aplica si es CREDITO
+    // Opcionales: sólo tienen sentido si tipo = CREDITO
     @Min(value = 1, message = "Día de corte debe ser entre 1 y 31")
     @Max(value = 31, message = "Día de corte debe ser entre 1 y 31")
     private Integer diaCorte;
@@ -42,7 +37,6 @@ public class CuentaDTO {
             message = "El límite de crédito no puede ser negativo")
     private BigDecimal limiteCredito;
 
-    // Validación condicional: sólo obligamos fechas si es crédito
     @AssertTrue(message = "Para cuentas de crédito, día de corte y de pago son obligatorios")
     public boolean isFechasCreditoValidas() {
         if (tipo != CuentaTipo.CREDITO) {

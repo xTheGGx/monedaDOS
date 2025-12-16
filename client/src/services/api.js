@@ -78,4 +78,9 @@ export const cuentaService = {
   getById: (id) => api.get(`/cuentas/${id}`)
 };
 
+// Servicios de Divisa
+export const divisaService = {
+  getAll: () => api.get('/divisas')
+};
+
 export default api;

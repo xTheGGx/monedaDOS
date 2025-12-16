@@ -2,10 +2,10 @@ package com.xtheggx.monedaDOS.service.impl;
 
 import java.util.List;
 
+import com.xtheggx.monedaDOS.dto.RegisterRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.xtheggx.monedaDOS.dto.RegistroDTO;
 import com.xtheggx.monedaDOS.model.Rol;
 import com.xtheggx.monedaDOS.model.Usuario;
 import com.xtheggx.monedaDOS.repository.RolRepository;
@@ -30,17 +30,17 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public void registrarUsuario(RegistroDTO registroDTO) {
+    public void registrarUsuario(RegisterRequest registroDTO) {
 
         // 1. Convertir DTO a Entidad
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setNombre(registroDTO.getNombre());
-        nuevoUsuario.setApellidoPaterno(registroDTO.getApellidoPaterno());
-        nuevoUsuario.setApellidoMaterno(registroDTO.getApellidoMaterno());
+        nuevoUsuario.setApellidoPaterno(registroDTO.getApellidoPat());
+        nuevoUsuario.setApellidoMaterno(registroDTO.getApellidoMat());
         nuevoUsuario.setEmail(registroDTO.getEmail());
 
         // 2. Encriptar la contraseña
-        nuevoUsuario.setContrasena(passwordEncoder.encode(registroDTO.getContrasena()));
+        nuevoUsuario.setContrasena(passwordEncoder.encode(registroDTO.getPassword()));
 
         // 3. Asignar el ROL por defecto
         Rol rolUsuario = rolRepository.findByNombreIgnoreCase("USER")

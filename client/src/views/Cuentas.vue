@@ -14,7 +14,8 @@ const sidebarError = ref(''); // Error específico del formulario lateral
 const initialState = {
     nombre: '',
     tipo: 'EFECTIVO',
-    moneda: 'MXN',
+    divisaId: '',
+    saldoInicial: 0,
     diaCorte: null,
     diaPago: null,
     limiteCredito: null
@@ -30,7 +31,7 @@ const cargarCuentas = async () => {
     try {
         const res = await api.get('/cuentas');
         cuentas.value = res.data;
-        saldoTotal.value = cuentas.value.reduce((sum, c) => sum + (c.saldo || 0), 0);
+        saldoTotal.value = cuentas.value.reduce((sum, c) => sum + safeNumber(c.saldo), 0);
     } catch (e) {
         console.error("Error cargando cuentas", e);
         errorMsg.value = 'No se pudieron cargar las cuentas';
@@ -39,12 +40,40 @@ const cargarCuentas = async () => {
     }
 };
 
+const divisas = ref([]);
+
+const cargarDivisas = async () => {
+    try {
+        const res = await api.get('/divisas');
+        divisas.value = res.data;
+    } catch (e) {
+        console.error('Error cargando divisas', e);
+    }
+};
+
+onMounted(() => {
+    cargarDivisas();
+    cargarCuentas();
+});
+
+
 const crearCuenta = async () => {
     // Limpiar error previo del sidebar
     sidebarError.value = '';
 
     if (!nuevaCuenta.value.nombre.trim()) {
         sidebarError.value = 'El nombre de la cuenta es obligatorio';
+        return;
+    }
+
+    //El nombre de la cuenta debe ser unico
+    if (cuentas.value.some(c => c.nombre.toLowerCase() === nuevaCuenta.value.nombre.trim().toLowerCase())) {
+        sidebarError.value = 'Ya existe una cuenta con ese nombre';
+        return;
+    }
+
+    if (!nuevaCuenta.value.divisaId) {
+        sidebarError.value = 'La divisa es obligatoria';
         return;
     }
 
@@ -60,17 +89,26 @@ const crearCuenta = async () => {
         nuevaCuenta.value = { ...initialState };
 
     } catch (e) {
-        // Mostrar error EN EL SIDEBAR, no en un alert
-        sidebarError.value = e.response?.data?.mensaje || e.message || 'Error al crear la cuenta';
+        // Mostrar error EN EL SIDEBAR
+        const msg = e?.response?.data?.message || e?.response?.data?.mensaje;
+
+        if (e?.response?.status === 409) {
+            sidebarError.value = msg || 'Ya existe una cuenta con ese nombre';
+        } else {
+            sidebarError.value = msg || e.message || 'Error al crear la cuenta';
+        }
     } finally {
         isLoading.value = false;
     }
 };
 
+const safeNumber = (v) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
 
-onMounted(() => {
-    cargarCuentas();
-});
+const money = (v) => safeNumber(v).toFixed(2);
+
 </script>
 
 <template>
@@ -85,7 +123,7 @@ onMounted(() => {
                     </div>
                     <div style="text-align: right;">
                         <span style="display: block; font-size: 0.875rem; color: var(--text-muted);">Saldo Total</span>
-                        <strong style="font-size: 1.5rem; font-weight: 700;">${{ saldoTotal.toFixed(2) }}</strong>
+                        <strong style="font-size: 1.5rem; font-weight: 700;">${{ money(saldoTotal) }}</strong>
                     </div>
                 </div>
 
@@ -99,22 +137,25 @@ onMounted(() => {
                 </div>
 
                 <div v-else class="accounts-grid">
-                    <div v-for="c in cuentas" :key="c.idCuenta" class="card account-card">
+                    <div v-for="c in cuentas" :key="c.id" class="card account-card">
                         <div class="account-card-header">
                             <h3>{{ c.nombre }}</h3>
                             <span class="badge" :class="c.tipo === 'CREDITO' ? 'badge-yellow' : 'badge-blue'">
                                 {{ c.tipo }}
                             </span>
                         </div>
-                        <p class="account-bank">{{ c.moneda }}</p>
+
+                        <p class="account-bank">{{ c.divisaCodigo }}</p>
                         <p class="account-balance"
-                            :class="{ 'text-expense': c.saldo < 0, 'text-income': c.saldo >= 0 }">
-                            ${{ c.saldo.toFixed(2) }}
-                        </p>
+   :class="{ 'text-expense': safeNumber(c.saldo) < 0, 'text-income': safeNumber(c.saldo) >= 0 }">
+  ${{ money(c.saldo) }}
+</p>
+
+
                         <div v-if="c.tipo === 'CREDITO' && c.limiteCredito" class="account-credit-details">
                             <div>
                                 <span>Límite:</span>
-                                <strong>${{ c.limiteCredito.toFixed(2) }}</strong>
+                                <strong>${{ money(c.limiteCredito) }}</strong>
                             </div>
                         </div>
                     </div>
@@ -159,10 +200,11 @@ onMounted(() => {
 
                 <div class="form-group">
                     <label>Moneda</label>
-                    <select v-model="nuevaCuenta.moneda" class="form-select">
-                        <option value="MXN">MXN - Peso Mexicano</option>
-                        <option value="USD">USD - Dólar</option>
-                        <option value="EUR">EUR - Euro</option>
+                    <select v-model="nuevaCuenta.divisaId" class="form-select" required>
+                        <option disabled value="">Selecciona una divisa</option>
+                        <option v-for="d in divisas" :key="d.idDivisa" :value="d.idDivisa">
+                            {{ d.codigoDivisa }} - {{ d.nombreDivisa }}
+                        </option>
                     </select>
                 </div>
 

@@ -1,73 +1,106 @@
-package com.xtheggx.monedaDOS.service.impl;
+package com.xtheggx.monedaDOS.service;
 
 import com.xtheggx.monedaDOS.dto.CuentaDTO;
+import com.xtheggx.monedaDOS.dto.CuentaResponse;
+import com.xtheggx.monedaDOS.dto.UpdateCuentaDTO;
+import com.xtheggx.monedaDOS.exception.GlobalExceptionHandler.ConflictException;
 import com.xtheggx.monedaDOS.model.Cuenta;
+import com.xtheggx.monedaDOS.model.Divisa;
 import com.xtheggx.monedaDOS.model.Usuario;
 import com.xtheggx.monedaDOS.repository.CuentaRepository;
+import com.xtheggx.monedaDOS.repository.DivisaRepository;
 import com.xtheggx.monedaDOS.repository.UsuarioRepository;
-import com.xtheggx.monedaDOS.service.CuentaService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CuentaServiceImpl implements CuentaService {
 
-    private final CuentaRepository repo;
-    private final UsuarioRepository usuarioRepo;
+    private final CuentaRepository cuentaRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final DivisaRepository divisaRepository;
 
     @Override
-    public List<Cuenta> listar(Long userId) {
-        log.debug("CuentaService.listarPorUsuario userId={}", userId);
-        return repo.findAllByUsuarioIdUsuario(userId);
+    public List<CuentaResponse> listar(Long usuarioId) {
+        List<Cuenta> cuentas = cuentaRepository.findAllByUsuarioIdUsuario(usuarioId);
+        return cuentas.stream()
+                .map(CuentaResponse::fromEntity)
+                .toList();
     }
 
     @Override
-    public BigDecimal saldoTotal(Long userId) {
-        log.debug("CuentaService.saldoTotal userId={}", userId);
-        return repo.sumSaldoByUsuarioIdUsuario(userId); // o sumar en memoria si no tienes query
+    public BigDecimal saldoTotal(Long usuarioId) {
+        return cuentaRepository.findById(usuarioId).stream()
+                .map(Cuenta::getSaldo)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-@Transactional
-@Override
-public void crear(Long userId, CuentaDTO dto) {
-    log.debug("CuentaService.crear dto={} userId={}", dto, userId);
+    @Override
+    public CuentaResponse crear(Long usuarioId, CuentaDTO dto) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-    if (userId == null) {
-        throw new IllegalArgumentException("userId cannot be null");
-    }
+        Divisa divisa = divisaRepository.findById(dto.getDivisaId())
+                .orElseThrow(() -> new IllegalArgumentException("Divisa no encontrada"));
 
-    // Verificar duplicados
-    if (repo.existsByUsuarioIdUsuarioAndNombre(userId, dto.getNombre())) {
-        throw new IllegalArgumentException("Ya existe una cuenta con el nombre '" + dto.getNombre() + "'");
-    }
+        String nombre = dto.getNombre().trim();
 
-    Cuenta c = new Cuenta();
-    Usuario userCuenta = usuarioRepo.findById(userId).orElse(null);
-        c.setUsuario(userCuenta);
-        c.setNombre(dto.getNombre());
-        c.setTipo(dto.getTipo());
-
-        c.setSaldo(BigDecimal.ZERO);
-        c.setMoneda("MXN");
-
-        if (dto.getTipo() != null && dto.getTipo().name().equals("CREDITO")) {
-            c.setDiaCorte(dto.getDiaCorte());
-            c.setDiaPago(dto.getDiaPago());
-            c.setLimiteCredito(dto.getLimiteCredito());
-        } else {
-            c.setDiaCorte(null);
-            c.setDiaPago(null);
-            c.setLimiteCredito(null);
+        if(cuentaRepository.existsByUsuarioIdUsuarioAndNombre(usuarioId, nombre)){
+            throw new ConflictException("Ya existe una cuenta con ese nombre");
         }
 
-        Cuenta saved = repo.save(c);
-        log.info("Cuenta creada idCuenta={} userId={}", saved.getIdCuenta(), userId);
+        Cuenta cuenta = new Cuenta();
+        cuenta.setUsuario(usuario);
+        cuenta.setDivisa(divisa);
+        cuenta.setNombre(dto.getNombre());
+        cuenta.setTipo(dto.getTipo());
+        cuenta.setSaldo(dto.getSaldoInicial() != null ? dto.getSaldoInicial() : BigDecimal.ZERO);
+        cuenta.setDiaCorte(dto.getDiaCorte());
+        cuenta.setDiaPago(dto.getDiaPago());
+        cuenta.setLimiteCredito(dto.getLimiteCredito());
+
+        Cuenta guardada = cuentaRepository.save(cuenta);
+        return CuentaResponse.fromEntity(guardada);
+    }
+
+    @Override
+    public CuentaResponse actualizar(Long cuentaId, Long usuarioId, UpdateCuentaDTO dto) {
+        Cuenta cuenta = cuentaRepository.findById(cuentaId)
+                .orElseThrow(() -> new IllegalArgumentException("Cuenta no encontrada"));
+
+        if (!cuenta.getUsuario().getIdUsuario().equals(usuarioId)) {
+            throw new AccessDeniedException("La cuenta no pertenece al usuario autenticado");
+        }
+
+        Divisa divisa = divisaRepository.findById(dto.getDivisaId())
+                .orElseThrow(() -> new IllegalArgumentException("Divisa no encontrada"));
+
+        cuenta.setNombre(dto.getNombre());
+        cuenta.setDivisa(divisa);
+        cuenta.setTipo(dto.getTipo());
+        cuenta.setDiaCorte(dto.getDiaCorte());
+        cuenta.setDiaPago(dto.getDiaPago());
+        cuenta.setLimiteCredito(dto.getLimiteCredito());
+
+        Cuenta guardada = cuentaRepository.save(cuenta);
+        return CuentaResponse.fromEntity(guardada);
+    }
+
+    @Override
+    public void eliminar(Long cuentaId, Long usuarioId) {
+        Cuenta cuenta = cuentaRepository.findById(cuentaId)
+                .orElseThrow(() -> new IllegalArgumentException("Cuenta no encontrada"));
+
+        if (!cuenta.getUsuario().getIdUsuario().equals(usuarioId)) {
+            throw new AccessDeniedException("La cuenta no pertenece al usuario autenticado");
+        }
+
+        cuentaRepository.delete(cuenta);
     }
 }

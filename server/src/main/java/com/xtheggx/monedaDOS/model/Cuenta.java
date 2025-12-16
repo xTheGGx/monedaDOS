@@ -1,13 +1,15 @@
 package com.xtheggx.monedaDOS.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
+import com.xtheggx.monedaDOS.model.Divisa;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,12 +52,22 @@ public class Cuenta {
     @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal saldo;
 
-    @Column(nullable = false, length = 3)
-    private String moneda; // ISO 4217 (MXN, USD, ...)
     @Column(name = "dia_corte")
+    @Min(value = 1, message = "El día de corte debe estar entre 1 y 31")
+    @Max(value = 31, message = "El día de corte debe estar entre 1 y 31")
     private Integer diaCorte; // 1..31 o null
     @Column(name = "dia_pago")
+    @Min(value = 1, message = "El día de pago debe estar entre 1 y 31")
+    @Max(value = 31, message = "El día de pago debe estar entre 1 y 31")
     private Integer diaPago;  // 1..31 o null
+
+    // Relación con Divisa en lugar de String moneda
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_divisa", nullable = false)
+    @JsonIgnore
+    @ToString.Exclude
+    private Divisa divisa;
+
 
     @Column(name = "limite_credito", precision = 15, scale = 2)
     private BigDecimal limiteCredito;
@@ -64,5 +76,11 @@ public class Cuenta {
     @JsonIgnore
     @ToString.Exclude
     private List<Transaccion> transacciones = new ArrayList<>();
+
+    // Método helper para obtener el código de la divisa
+    public String getCodigoDivisa() {
+        return divisa != null ? divisa.getCodigoDivisa() : null;
+    }
+
 
 }

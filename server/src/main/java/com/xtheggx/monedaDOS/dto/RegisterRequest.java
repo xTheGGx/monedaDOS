@@ -1,4 +1,4 @@
-package com.xtheggx.monedaDOS.auth;
+package com.xtheggx.monedaDOS.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

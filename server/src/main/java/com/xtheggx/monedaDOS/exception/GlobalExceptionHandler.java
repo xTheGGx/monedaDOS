@@ -14,6 +14,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
@@ -181,6 +182,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public static class ConflictException extends RuntimeException {
+        public ConflictException(String msg) { super(msg); }
+    }
+
+
     // --- CLASE DE RESPUESTA UNIFICADA ---
     @Getter
     @Setter
@@ -206,5 +213,9 @@ public class GlobalExceptionHandler {
         public ErrorResponse(int status, String error, String message, String path) {
             this(status, error, message, path, null);
         }
+
+
+
+
     }
 }

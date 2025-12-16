@@ -2,9 +2,8 @@ package com.xtheggx.monedaDOS.controller;
 
 import com.xtheggx.monedaDOS.auth.AuthResponse;
 import com.xtheggx.monedaDOS.auth.AuthService;
-import com.xtheggx.monedaDOS.auth.LoginRequest;
-import com.xtheggx.monedaDOS.auth.RegisterRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.xtheggx.monedaDOS.dto.LoginRequest;
+import com.xtheggx.monedaDOS.dto.RegisterRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;

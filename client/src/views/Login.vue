@@ -46,7 +46,7 @@ const handleLogin = async () => {
     router.push('/dashboard');
   } catch (error) {
     if (error.response && error.response.status === 401) {
-      errorMsg.value = 'Credenciales inválidas. Verifica tu correo.';
+      errorMsg.value = 'Credenciales inválidas. Verifica tu correo y/o contraseña.';
     } else {
       errorMsg.value = 'Error de conexión. Intenta más tarde.';
     }

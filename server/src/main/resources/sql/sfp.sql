@@ -67,10 +67,10 @@ CREATE TABLE CONFIGURACION_USUARIO (
 CREATE TABLE CUENTA (
                         id_cuenta BIGINT NOT NULL AUTO_INCREMENT,
                         usuario_id BIGINT NOT NULL,         -- dueño de la cuenta
+                        divisa_id BIGINT NOT NULL,          -- divisa de la cuenta
                         nombre VARCHAR(100) NOT NULL,
                         tipo ENUM('EFECTIVO','DEBITO','CREDITO','OTRO') NOT NULL,
                         saldo DECIMAL(15,2) NOT NULL DEFAULT 0.00,
-                        moneda CHAR(3) NOT NULL DEFAULT 'MXN',    -- ISO 4217
                         dia_corte TINYINT NULL,                   -- 1..31
                         dia_pago  TINYINT NULL,                   -- 1..31
                         limite_credito DECIMAL(15,2) NULL,
@@ -81,6 +81,9 @@ CREATE TABLE CUENTA (
                         PRIMARY KEY (id_cuenta),
                         CONSTRAINT fk_cuenta_usuario FOREIGN KEY (usuario_id)
                             REFERENCES USUARIO(id_usuario)
+                            ON UPDATE CASCADE ON DELETE CASCADE,
+                        CONSTRAINT fk_cuenta_divisa FOREIGN KEY (divisa_id)
+                            REFERENCES DIVISA(id_divisa)
                             ON UPDATE CASCADE ON DELETE CASCADE,
                         CONSTRAINT fk_cuenta_created_by FOREIGN KEY (created_by)
                             REFERENCES USUARIO(id_usuario)
@@ -94,10 +97,17 @@ CREATE TABLE CUENTA (
                             ),
                         CONSTRAINT chk_limite_no_neg CHECK (limite_credito IS NULL OR limite_credito >= 0),
                         UNIQUE KEY uq_cuenta_usuario_nombre (usuario_id, nombre),
-                        INDEX idx_cuenta_tipo (tipo),
-                        INDEX idx_cuenta_moneda (moneda)
+                        INDEX idx_cuenta_tipo (tipo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+-- CATALOGO DE DIVISAS
+CREATE TABLE DIVISA(
+        id_divisa BIGINT NOT NULL AUTO_INCREMENT,
+        codigo_divisa VARCHAR(3),
+        nombre_divisa VARCHAR(100),
+        PRIMARY KEY (id_divisa)
+)
 -- =========================================================
 --  CATEGORÍAS Y TRANSACCIONES
 -- =========================================================
@@ -294,7 +304,8 @@ VALUES ('Demo', 'demo@ejemplo.com', '$2y$12$HASH_DE_EJEMPLO_NO_REAL', (SELECT id
 INSERT INTO CONFIGURACION_USUARIO (usuario_id, p_necesidades, p_deseos, p_ahorro)
 SELECT id_usuario, 50.00, 30.00, 20.00 FROM USUARIO WHERE email='demo@ejemplo.com';
 
-
+-- Catalogo de divisas
+INSERT INTO DIVISA (id_divisa, codigo_divisa, nombre_divisa) VALUES (1,'MXN', "PESOS MEXICANOS")
 -- Añadir color a categoria
 ALTER TABLE categoria
     ADD COLUMN COLOR VARCHAR(7)
