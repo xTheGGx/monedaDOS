@@ -42,7 +42,7 @@ const routes = [
         component: Transacciones,
         name : 'Transacciones',
         meta: {
-            requiresGuest: true, // Requeries guest para pruebas
+            requiresAuth: true, // Requiere autenticación
             tittle: 'Transacciones - monedaDOS'
         } // Requiere autenticación
     },

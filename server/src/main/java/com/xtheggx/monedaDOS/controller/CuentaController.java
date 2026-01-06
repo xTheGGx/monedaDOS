@@ -52,7 +52,7 @@ public class CuentaController {
     }
 
     // 4. Actualizar cuenta (nombre, divisa, tipo...)
-    @PutMapping
+    @PutMapping ("/{id}")
     public ResponseEntity<CuentaResponse> actualizarCuenta(
             @PathVariable("id") Long idCuenta,
             @Valid @RequestBody UpdateCuentaDTO dto

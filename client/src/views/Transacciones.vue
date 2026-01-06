@@ -25,10 +25,11 @@ const filters = ref({
 const isSidebarOpen = ref(false);
 const isSubmitting = ref(false);
 const sidebarError = ref('');
+
 const form = ref({
-  idTransaccion: null,
+  id: null,
   descripcion: '',
-  monto: '',
+  monto: null,
   tipoMovimiento: 'INGRESO', // Para controlar qué categorías mostrar
   categoriaId: '',
   cuentaId: ''
@@ -46,6 +47,15 @@ onMounted(async () => {
 watch(() => filters.value.tipo, () => {
   filters.value.page = 0; // Reset a página 1
   fetchTransactions();
+});
+
+watch(() => filters.value.page, () => {
+  fetchTransactions();
+});
+
+// Debug: Monitorear cambios en form.cuentaId
+watch(() => form.value.cuentaId, (newVal, oldVal) => {
+  console.log('WATCH cuentaId:', oldVal, '->', newVal);
 });
 
 // --- Métodos de API ---
@@ -88,8 +98,23 @@ const fetchTransactions = async () => {
 };
 
 const handleSave = async () => {
-  if(!form.value.monto || !form.value.cuentaId || !form.value.categoriaId) {
-    sidebarError.value = "Por favor completa los campos obligatorios.";
+  // Normalización y validación - convertir strings a números
+  const cuentaId = form.value.cuentaId && form.value.cuentaId !== '' ? Number(form.value.cuentaId) : NaN;
+  const categoriaId = form.value.categoriaId && form.value.categoriaId !== '' ? Number(form.value.categoriaId) : NaN;
+  
+  // Convertir monto asegurándose que es un número válido
+  let montoNum = 0;
+  if (form.value.monto !== null && form.value.monto !== undefined && form.value.monto !== '') {
+    const montoRaw = String(form.value.monto).trim().replace(',', '.');
+    montoNum = parseFloat(montoRaw);
+  }
+
+  const hasCuenta = Number.isInteger(cuentaId) && cuentaId > 0;
+  const hasCategoria = Number.isInteger(categoriaId) && categoriaId > 0;
+  const hasMonto = Number.isFinite(montoNum) && montoNum > 0;
+
+  if (!hasMonto || !hasCuenta || !hasCategoria) {
+    sidebarError.value = "Por favor completa los campos obligatorios (Cuenta, Categoría y Monto ).";
     return;
   }
 
@@ -97,25 +122,35 @@ const handleSave = async () => {
   sidebarError.value = '';
 
   try {
-    const payload = {
-      cuentaId: form.value.cuentaId,
-      categoriaId: form.value.categoriaId,
-      monto: parseFloat(form.value.monto),
-      descripcion: form.value.descripcion
+    const montoFirmado = form.value.tipoMovimiento === 'EGRESO'
+      ? -Math.abs(montoNum)
+      : Math.abs(montoNum);
+
+     const payload = {
+      cuentaId,
+      categoriaId,
+      monto: montoFirmado,
+      descripcion: (form.value.descripcion || '').trim() || null
     };
 
-    if (form.value.idTransaccion) {
-      // Editar
-      await transaccionService.update(form.value.idTransaccion, payload);
+    console.log('📤 PAYLOAD ENVIADO:', JSON.stringify(payload, null, 2));
+
+    if (form.value.id) {
+      await transaccionService.update(form.value.id, payload);
     } else {
-      // Crear
       await transaccionService.create(payload);
     }
 
     closeSidebar();
-    fetchTransactions(); // Recargar lista
-  } catch (e) {
-    sidebarError.value = e.response?.data?.mensaje || "Error al guardar el movimiento.";
+    fetchTransactions();
+   } catch (e) {
+    // Manejo de error 
+    const backendMsg =
+      e?.response?.data?.mensaje ??
+      e?.response?.data?.message ??
+      (typeof e?.response?.data === 'string' ? e.response.data : null);
+
+    sidebarError.value = backendMsg || "Error al guardar el movimiento.";
   } finally {
     isSubmitting.value = false;
   }
@@ -138,20 +173,20 @@ const openSidebar = (tx = null) => {
   if (tx) {
     // Modo Edición
     form.value = {
-      idTransaccion: tx.idTransaccion,
+      id: tx.id,
       descripcion: tx.descripcion,
-      monto: Math.abs(tx.monto), // Mostrar siempre positivo en el input
+      monto: Math.abs(Number(tx.monto)), // Mostrar siempre positivo en el input
       // Detectar tipo basado en la categoría de la transacción original
       tipoMovimiento: tx.categoria.tipo, 
-      categoriaId: tx.categoria.idCategoria,
-      cuentaId: tx.cuenta.idCuenta
+      categoriaId: String(tx.categoria.idCategoria),
+      cuentaId: String(tx.cuenta.id)
     };
   } else {
     // Modo Creación
     form.value = {
-      idTransaccion: null,
+      id: null,
       descripcion: '',
-      monto: '',
+      monto: null,
       tipoMovimiento: 'INGRESO',
       categoriaId: '',
       cuentaId: ''
@@ -301,7 +336,7 @@ const getCategoryEmoji = (nombreCat) => {
           <div v-else class="space-y-3">
             <div 
               v-for="tx in filteredTransactions" 
-              :key="tx.idTransaccion"
+              :key="tx.id"
               class="flex items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-transparent hover:border-cookie-dough/30 transition-all group shadow-sm"
             >
               <div class="flex items-center gap-4 flex-1">
@@ -341,7 +376,7 @@ const getCategoryEmoji = (nombreCat) => {
                   <button @click="openSidebar(tx)" class="p-2 hover:bg-cookie-dough/20 rounded-full text-cookie-dough" title="Editar">
                     <Edit2 :size="18" />
                   </button>
-                  <button @click="handleDelete(tx.idTransaccion)" class="p-2 hover:bg-red-100 rounded-full text-berry-jam" title="Eliminar">
+                  <button @click="handleDelete(tx.id)" class="p-2 hover:bg-red-100 rounded-full text-berry-jam" title="Eliminar">
                     <Trash2 :size="18" />
                   </button>
                 </div>
@@ -395,7 +430,7 @@ const getCategoryEmoji = (nombreCat) => {
     >
       <div class="p-6 border-b border-cookie-dough/20 flex justify-between items-center bg-white">
         <h3 class="text-xl font-bold text-dark-chocolate">
-          {{ form.idTransaccion ? '✏️ Editar Movimiento' : '📝 Nuevo Movimiento' }}
+          {{ form.id ? '✏️ Editar Movimiento' : '📝 Nuevo Movimiento' }}
         </h3>
         <button @click="closeSidebar" class="text-brown-muted hover:text-dark-chocolate">
           <X :size="24" />
@@ -435,10 +470,10 @@ const getCategoryEmoji = (nombreCat) => {
               <input 
                 v-model="form.monto" 
                 type="number" 
-                step="0.01" 
                 placeholder="0.00"
+                step="0.01"
+                min="0"
                 class="w-full bg-white rounded-xl py-4 pl-10 pr-4 text-xl font-bold text-dark-chocolate border-2 border-transparent focus:border-cookie-dough focus:outline-none shadow-inner"
-                required
               />
             </div>
           </div>
@@ -457,16 +492,17 @@ const getCategoryEmoji = (nombreCat) => {
           <div>
             <label class="block text-sm font-bold text-brown-muted mb-2">Categoría</label>
             <div class="grid grid-cols-3 gap-2">
-              <div 
+              <button
                 v-for="cat in categoriasDisponibles" 
                 :key="cat.idCategoria"
-                @click="form.categoriaId = cat.idCategoria"
-                class="cursor-pointer p-2 rounded-xl border-2 text-center transition-all flex flex-col items-center gap-1"
-                :class="form.categoriaId === cat.idCategoria ? 'border-cookie-dough bg-cookie-dough/10' : 'border-transparent bg-white hover:bg-gray-50'"
+                type="button"
+                @click="form.categoriaId = form.categoriaId === String(cat.idCategoria) ? '' : String(cat.idCategoria)"
+                class="p-3 border-2 rounded-lg cursor-pointer transition-all flex flex-col items-center gap-1"
+                :class="form.categoriaId === String(cat.idCategoria) ? 'border-cookie-dough bg-cookie-dough/10 shadow' : 'border-gray-200 bg-white hover:bg-gray-50'"
               >
-                <div class="text-xl">{{ getCategoryEmoji(cat.nombre) }}</div>
-                <span class="text-xs font-medium truncate w-full">{{ cat.nombre }}</span>
-              </div>
+                <div class="text-2xl">{{ getCategoryEmoji(cat.nombre) }}</div>
+                <span class="text-xs font-medium truncate w-full text-center">{{ cat.nombre }}</span>
+              </button>
             </div>
             <p v-if="categoriasDisponibles.length === 0" class="text-xs text-center text-brown-muted mt-2">
               No hay categorías de este tipo.
@@ -478,11 +514,10 @@ const getCategoryEmoji = (nombreCat) => {
             <select 
               v-model="form.cuentaId"
               class="w-full bg-white rounded-xl py-3 px-4 border border-cookie-dough/20 focus:border-cookie-dough focus:outline-none appearance-none"
-              required
             >
               <option value="" disabled>Selecciona una cuenta</option>
-              <option v-for="cta in cuentas" :key="cta.idCuenta" :value="cta.idCuenta">
-                {{ cta.nombre }} ({{ cta.moneda }})
+              <option v-for="cta in cuentas" :key="cta.id" :value="String(cta.id)">
+                {{ cta.nombre }} ({{ cta.divisaCodigo }})
               </option>
             </select>
           </div>

@@ -75,7 +75,10 @@ export const categoriaService = {
 // Servicios de Cuentas
 export const cuentaService = {
   getAll: () => api.get('/cuentas'),
-  getById: (id) => api.get(`/cuentas/${id}`)
+  getById: (id) => api.get(`/cuentas/${id}`),
+  delete: (id) => api.delete(`/cuentas/${id}`),
+  update: (id, data) => api.put(`/cuentas/${id}`, data),
+  create: (data) => api.post('/cuentas', data)
 };
 
 // Servicios de Divisa

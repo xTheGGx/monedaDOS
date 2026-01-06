@@ -27,12 +27,12 @@ public class Transaccion {
     @ToString.Exclude
     private Usuario usuario;  // quien registra la transacción
 
-    @ManyToOne(fetch = FetchType.LAZY)  
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cuenta_id", nullable = false)
     @ToString.Exclude
     private Cuenta cuenta;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id", nullable = false)
     @ToString.Exclude   
     private Categoria categoria;
